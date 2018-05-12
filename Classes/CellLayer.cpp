@@ -11,7 +11,7 @@ CellLayer::~CellLayer()
 {
 }
 
-CellLayer * CellLayer::create(CellConfiguration config)
+CellLayer * CellLayer::create(const CellConfiguration &config)
 {
 			auto celllayer = new (std::nothrow) CellLayer;
 			if (celllayer && celllayer->init(config))
@@ -26,7 +26,7 @@ CellLayer * CellLayer::create(CellConfiguration config)
 			return celllayer;
 }
 
-bool CellLayer::init(CellConfiguration config)
+bool CellLayer::init(const CellConfiguration &config)
 {
 			auto ret = false;
 			do 

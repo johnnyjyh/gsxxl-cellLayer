@@ -16,7 +16,7 @@ GamePlayerScene::~GamePlayerScene()
 {
 }
 
-Scene * GamePlayerScene::createScene(CellConfiguration config)
+Scene * GamePlayerScene::createScene(const CellConfiguration &config)
 {
 			auto scene = Scene::create();
 			auto layer = GamePlayerScene::create(config);
@@ -24,7 +24,7 @@ Scene * GamePlayerScene::createScene(CellConfiguration config)
 			return scene;
 }
 
-GamePlayerScene * GamePlayerScene::create(CellConfiguration config)
+GamePlayerScene * GamePlayerScene::create(const CellConfiguration &config)
 {
 			GamePlayerScene *pRet = new GamePlayerScene();
 			if (pRet && pRet->init(config))
@@ -39,7 +39,7 @@ GamePlayerScene * GamePlayerScene::create(CellConfiguration config)
 			return pRet;
 }
 
-bool GamePlayerScene::init(CellConfiguration config)
+bool GamePlayerScene::init(const CellConfiguration &config)
 {
 			Layer::init();	
 

@@ -24,6 +24,22 @@ USING_NS_CC;
 
 
 
+constexpr std::map<std::string, std::string> _StringTypeFile
+{
+			{red, ""},
+			{ pink, },
+			{ yellow, },
+			{ green,"operating_ green.png" },
+			{ blue,"operating_blue.png" },
+			{ blueand, },
+			{ purple,"operating_ purple.png" },
+			{ snowBlock, "operating_obstacle_004.png"},
+			{ normalDiamond,"operating_obstacle_005.png" },
+			{ grass,"operating_obstacle_009.png"},
+}
+
+
+
 enum CellColor : int
 {
 			red = 1,

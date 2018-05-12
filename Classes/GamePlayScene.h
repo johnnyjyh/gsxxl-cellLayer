@@ -13,12 +13,12 @@ public:
 			GamePlayerScene();
 			~GamePlayerScene();
 
-			static Scene *createScene(CellConfiguration config);
-			static GamePlayerScene *create(CellConfiguration config);
+			static Scene *createScene(const CellConfiguration &config);
+			static GamePlayerScene *create(const CellConfiguration &config);
 			static bool loadAnimate();
 
 			//初始化游戏内容
-			bool init(CellConfiguration config);
+			bool init(const CellConfiguration &config);
 			//创建炮台
 		
 			//创建怪物，并处理动作 

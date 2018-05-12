@@ -8,8 +8,8 @@ class CellLayer:public Layer
 public:
 			CellLayer();
 			~CellLayer();
-			static CellLayer *create(CellConfiguration config);
-			bool init(CellConfiguration config);
+			static CellLayer *create(const CellConfiguration &config);
+			bool init(const CellConfiguration &config);
 
 
 
