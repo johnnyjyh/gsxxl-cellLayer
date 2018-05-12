@@ -1,43 +1,60 @@
 #pragma once
-
 #include "cocos2d.h"
 #include "cocos-ext.h"
 USING_NS_CC_EXT;
 USING_NS_CC;
 
+
+
 #define winSize Director::getInstance()->getWinSize()
 #define towerArea (((float)265/(float)640)*((float)winSize.height))
 
+//cell≈‰÷√
+#define CellConfig_LocalCellCol 7
+#define CellConfig_LocalCellRow 5
+#define CellConfig_PlateHorizontalCol 7
+#define CellConfig_PlateHorizontalRow 6
+#define CellConfig_PlateVecticalCol 8
+#define CellConfig_PlateVecticalRow 5
+
+#define CellColorCN 0
+#define PlateColorCN 100;
+
+
+
+
+
 enum CellColor : int
 {
-			red = 0,
+			red = 1,
 			pink,
 			yellow,
 			green,
 			blue,
 			blueand,
-			purple,
-			snowBlock,
-			normalDiamond,
+			purple,//6
+			snowBlock,//7
+			normalDiamond,//8
+			grass,//9
 };
 
 enum PlateColor :int
 {
-			snowPlate=50,
+			snowPlate=101,
 			stellPlate,
 };
 
 
 enum CellGlobalZorder :int
 {
-			cellZorder = 1000,
+			cellZorder = 100,
 			snowBlockZorder ,
 			normalDiamondZorder,
 };
 
 enum PlateGlobalZorder :int
 {
-			snowPlateZorder = 1003,
+			snowPlateZorder = 200,
 			stellPlateZorder ,
 };
 
@@ -65,4 +82,15 @@ enum PlateLife :int
 {
 			snowPlateLife = 1,
 			stellPlateLife = 2,
+};
+
+
+
+
+
+struct CellConfiguration
+{
+			int _localCell[CellConfig_LocalCellCol][CellConfig_LocalCellRow];
+			int _plateHorizontal[CellConfig_PlateHorizontalCol][CellConfig_PlateHorizontalRow];
+			int _plateVectical[CellConfig_PlateVecticalCol][CellConfig_PlateVecticalRow];
 };
