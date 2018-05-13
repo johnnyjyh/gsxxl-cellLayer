@@ -13,10 +13,10 @@ public:
 						
 			bool init();
 
-			void pushObject(constexpr std::string &type,Sprite *spr);
-			void getObject(constexpr std::string &type);
+			void pushObject(const std::string &type,Sprite *spr);
+			Sprite *getObject(const std::string &type);
 
-			constexpr int getSize() { return _size; };
+			const int getSize() { return _size; };
 
 			
 			std::map<std::string,Vector<Sprite *>>  _ObjectPool;
