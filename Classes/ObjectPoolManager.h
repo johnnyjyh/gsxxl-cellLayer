@@ -6,8 +6,7 @@ class ObjectPoolManager
 {
 public:
 
-			ObjectPoolManager();
-			ObjectPoolManager(int size) ;		
+
 			~ObjectPoolManager();
 			static ObjectPoolManager *getInstance();
 						
@@ -15,6 +14,7 @@ public:
 
 			void pushObject(const std::string &type,Sprite *spr);
 			Sprite *getObject(const std::string &type);
+			void clearObject(bool isClear = true);
 
 			const int getSize() { return _size; };
 
@@ -22,6 +22,9 @@ public:
 			std::map<std::string,Vector<Sprite *>>  _ObjectPool;
 			int _size{ 0 };
 			static ObjectPoolManager *_instance;
+private:
+			ObjectPoolManager();
+			ObjectPoolManager(int size);
 
 };
 

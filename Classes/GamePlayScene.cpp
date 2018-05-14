@@ -44,6 +44,7 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 			Layer::init();	
 
 			loadAnimate();
+
 			initBackGround();
 
 			initClippingNode();
@@ -53,7 +54,7 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 		
 			auto cellLayer = CellLayer::create(config);
 			addChild(cellLayer);
-			
+
 			
 			
 

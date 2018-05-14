@@ -7,6 +7,8 @@ public:
 			Plate();
 			~Plate();
 			static Plate *create(int col, int row, PlateColor color);
+			bool init();
+			void destroy();
 			
 };
 

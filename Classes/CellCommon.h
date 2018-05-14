@@ -8,6 +8,11 @@ USING_NS_CC;
 
 #define winSize Director::getInstance()->getWinSize()
 #define towerArea (((float)265/(float)640)*((float)winSize.height))
+#define getSingleTiledSize (Vec2((float)(winSize.width/7),(float)(winSize.height/14)))
+#define tileinterval (float)(winSize.width/7)
+
+
+
 
 //cell≈‰÷√
 #define CellConfig_LocalCellCol 7
@@ -20,30 +25,49 @@ USING_NS_CC;
 #define CellColorCN 0
 #define PlateColorCN 100;
 
+#define PlateVerticalLeftIdx 1.1
+#define CellEliminateKind 7
 
 
-
-
-
-
-
-
-enum CellColor : int
+const std::map<std::string, std::string> _StringTypeFile
 {
+			{ "red", "operating_red.png" },
+			{ "pink", "operating_pink.png" },
+			{ "yellow", "operating_yellow.png" },
+			{ "green","operating_ green.png" },
+			{ "blue","operating_blue.png" },
+			{ "blueand", "operating_blueand.png" },
+			{ "purple","operating_ purple.png" },
+			{ "snowBlock", "operating_obstacle_004.png" },
+			{ "normalDiamond","operating_obstacle_005.png" },
+			{ "grass","operating_obstacle_009.png" },
+			{ "snowPlate","operating_obstacle_002.png" },
+			{ "stellPlate","operating_obstacle_001.png" },
+};
+
+
+
+
+
+
+enum alignas(alignof(int)) CellColor : int
+{
+			nullCell = 0,
 			red = 1,
 			pink,
 			yellow,
 			green,
 			blue,
 			blueand,
-			purple,//6
-			snowBlock,//7
-			normalDiamond,//8
-			grass,//9
+			purple,
+			snowBlock,
+			normalDiamond,
+			grass,
 };
 
 enum PlateColor :int
 {
+			nullPlate = 100,
 			snowPlate=101,
 			stellPlate,
 };
@@ -52,14 +76,11 @@ enum PlateColor :int
 enum CellGlobalZorder :int
 {
 			cellZorder = 100,
-			snowBlockZorder ,
-			normalDiamondZorder,
 };
 
 enum PlateGlobalZorder :int
 {
-			snowPlateZorder = 200,
-			stellPlateZorder ,
+			PlateZorder = 200,
 };
 
 

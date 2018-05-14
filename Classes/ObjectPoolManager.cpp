@@ -5,19 +5,7 @@
 ObjectPoolManager * ObjectPoolManager::_instance = nullptr;
 
 
-const std::map<std::string, std::string> _StringTypeFile
-{
-			{ "red", "operating_red.png" },
-			{ "pink", "operating_pink.png" },
-			{ "yellow", "operating_yellow.png" },
-			{ "green","operating_ green.png" },
-			{ "blue","operating_blue.png" },
-			{ "blueand", "operating_blueand.png" },
-			{ "purple","operating_ purple.png" },
-			{ "snowBlock", "operating_obstacle_004.png" },
-			{ "normalDiamond","operating_obstacle_005.png" },
-			{ "grass","operating_obstacle_009.png" },
-};
+
 
 ObjectPoolManager::ObjectPoolManager() :_size(35)
 {
@@ -31,6 +19,7 @@ ObjectPoolManager::ObjectPoolManager(int size)
 
 ObjectPoolManager::~ObjectPoolManager()
 {
+			_instance->clearObject(true);
 			delete _instance;
 			_instance = nullptr;
 }
@@ -72,8 +61,12 @@ void ObjectPoolManager::pushObject(const std::string &type, Sprite *spr)
 						}
 						else
 						{
-									spr->release();									
+									while(spr->getReferenceCount ()>0)
+									{
+												spr->release();
+									}
 						}
+
 			}
 }
 
@@ -81,7 +74,7 @@ Sprite *ObjectPoolManager::getObject(const std::string &type)
 {
 			if (_ObjectPool.empty())
 			{
-						//初始化
+						//初始化						
 						for (auto &config : _StringTypeFile)
 						{
 									for (int i = 0; i < _size; ++i)
@@ -102,16 +95,30 @@ Sprite *ObjectPoolManager::getObject(const std::string &type)
 												break;
 									}
 						}
-						CCASSERT(isfind, "0001:Pool get type wrong!");
+						if(!isfind)
+						{
+									log("0001:ObjectPoolManager-getObject-string Type is wrong:type=%s",type.c_str ());
+									return nullptr;
+						}
 						if (_ObjectPool[type].empty())
 						{
 									for (int i = 0; i < 10; ++i)
 									{
-												auto spr = Sprite::createWithSpriteFrameName((_StringTypeFile[type]));
+												auto spr = Sprite::createWithSpriteFrameName((_StringTypeFile.at(type)));
 												_ObjectPool[type].pushBack(spr);
 									}
 						}
 			}
-			auto sprIter = _ObjectPool[type].erase(0);
-			return *sprIter;
+			auto sprIter = _ObjectPool[type].front();
+			_ObjectPool[type].erase(0);
+			return sprIter;
+}
+
+void ObjectPoolManager::clearObject(bool isClear)
+{
+			for(auto objectMap:_ObjectPool)
+			{
+						objectMap.second.clear();
+			}
+			_ObjectPool.clear();
 }

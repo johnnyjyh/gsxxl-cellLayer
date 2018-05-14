@@ -60,7 +60,7 @@ Scene * PlayerDateControl::turnToGamePlayScene()
 void PlayerDateControl::initRandEngine()
 {
 			std::default_random_engine generator(time(NULL));
-			std::uniform_int_distribution<int> dis(1, 10);
+			std::uniform_int_distribution<int> dis(1,10);
 			auto dice = std::bind(dis, generator);
 
 			for (int col = 0; col < CellConfig_LocalCellCol; ++col)
@@ -71,7 +71,7 @@ void PlayerDateControl::initRandEngine()
 						}
 			}
 
-			std::uniform_int_distribution<int> dis2(0, 2);
+			std::uniform_int_distribution<int> dis2(100, 102);
 			auto dice2 = std::bind(dis2, generator);
 
 			for (int col = 0; col < CellConfig_PlateHorizontalCol; ++col)
@@ -82,13 +82,13 @@ void PlayerDateControl::initRandEngine()
 						}
 			}
 
-			std::uniform_int_distribution<int> dis3(0, 2);
+			std::uniform_int_distribution<int> dis3(100, 102);
 			auto dice3 = std::bind(dis3, generator);
 			for (auto col = 0; col < CellConfig_PlateVecticalCol; ++col)
 			{
 						for (auto row = 0; row < CellConfig_PlateVecticalRow; ++row)
 						{
-									//_config._plateVectical[col][row]=
+									_config._plateVectical[col][row] = dice3();
 						}
 			}
 
