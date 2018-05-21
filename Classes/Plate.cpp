@@ -11,7 +11,7 @@ Plate::~Plate()
 {
 }
 
-Plate * Plate::create(int col, int row, PlateColor color)
+Plate * Plate::create(int col, int row, CellColor color)
 {
 			auto plate = new (std::nothrow) Plate;
 			plate->setCellColor(color);
@@ -38,41 +38,50 @@ bool  Plate::init()
 
 						switch (_color)
 						{
-						case PlateColor::nullPlate:
+						case CellColor::nullPlate:
+									_colorStr = "nullPlate";
 									return ret;
 									break;
-						case PlateColor::snowPlate:
-									_colorStr = "snowPlate";
+						case CellColor::snowPlate:
+									//_colorStr = "snowPlate";
 									_isCanSelected = false;
 									_isCanMove = false;
-									_life = 1;
+									_isCanBeAtteckted = true;
+									_life = PlateLife::snowPlateLife;
 									break;
-						case PlateColor::stellPlate:
-									_colorStr = "stellPlate";
+						case CellColor::stellPlate:
+									//_colorStr = "stellPlate";
 									_isCanSelected = false;
 									_isCanMove = false;
-									_life = 10000;
+									_isCanBeAtteckted = false;
+									_life = PlateLife::stellPlateLife;
 									break;
 						default:
 									log("0003:Plate-init-color is wrong:%d",_color);
 									return ret;
 									break;
 						}
-						
+						int enumIndex = static_cast<int>(_color);
+						_colorStr = _EnumTypeFromStringCell.at(enumIndex);
 						_spr = ObjectPoolManager::getInstance()->getObject(_colorStr);
 						if(_spr==nullptr)
 						{
 									return ret;
 						}
-						if(_color==PlateColor::stellPlate)
-						{
+						if(_color==CellColor::stellPlate)
+						{								
 									setRotation(270.0);
 						}
-						else
+						else if(_color==CellColor::snowPlate)
 						{
 									setRotation(180.0);
 						}
-						setScale(0.5f);
+						else
+						{
+									log("0008:Plate-init-CellColor :wrong!");
+									return ret;
+						}
+						setScale(getSingleTiledSize.x / _spr->getContentSize().width);
 						addChild(_spr);
 						ret = true;
 			} while (0);
@@ -83,4 +92,5 @@ void Plate::destroy()
 {
 			ObjectPoolManager::getInstance()->pushObject(_colorStr, _spr);
 			removeChild(_spr);
+			_spr = nullptr;
 }

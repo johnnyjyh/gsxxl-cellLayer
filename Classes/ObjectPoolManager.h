@@ -6,7 +6,6 @@ class ObjectPoolManager
 {
 public:
 
-
 			~ObjectPoolManager();
 			static ObjectPoolManager *getInstance();
 						

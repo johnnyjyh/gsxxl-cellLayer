@@ -13,16 +13,27 @@ public:
 			virtual inline void setLife(const int life) { _life = life; };
 			virtual inline  int getLife() const { return _life; };
 			virtual inline Sprite * getCellSprite() const { return _spr;};
+			virtual Rect getBoundingBox() noexcept ;
+			virtual inline void loseLife() noexcept { --_life; };
+			virtual  void initCellToNull()noexcept;
+			virtual double getSpeed() noexcept { return _speed; };
+			virtual int getScore() noexcept { return _score; };
+			virtual void setScore(int score) noexcept { _score = score; };
+			virtual void onEnter() { Node::onEnter();
+			};
+			virtual void onExit() { Node::onExit(); 
+			};
 
-					
-			
+
 			bool _isSelected{ false }; //是否被选择
 			bool _isCanSelected{ false };//是否能选择
 			bool _isUsedLogic{ false };//是否用于计算
 			bool _isTouchBack{ false };//是否触摸返回
 			bool _isMoving{ false };//是否在移动
-			bool _isCanMove{ false };//是否可以移动
-
+			bool _isCanMove{ true };//是否可以移动
+			bool _isCanBeAtteckted{false};
+			int _iAttack{ 0 };
+			int _score{ 0 };
 			
 			
 			Sprite* _spr{nullptr};
@@ -30,10 +41,13 @@ public:
 			std::string _colorStr;
 			
 			int _life{ 0 };
+			CellColor _color;
 			CC_SYNTHESIZE(int, _row, Row);
 			CC_SYNTHESIZE(int, _column, Column);
 			
-			CellColor _color;
-
+			double _speed{ 0.0 };
+			
+			std::vector<Vec2> _moveVec;
+			Vector<FiniteTimeAction *> _moveActionVec;
 };
 

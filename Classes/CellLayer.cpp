@@ -31,9 +31,11 @@ bool CellLayer::init(const CellConfiguration &config)
 			auto ret = false;
 			do 
 			{
+						addGreyAndLightShader();
+
 						displayAll(config);
 						
-						addGreyAndLightShader();
+						
 						
 						auto listen = EventListenerTouchOneByOne::create();
 						listen->onTouchBegan = CC_CALLBACK_2(CellLayer::onTouchBegan, this);
@@ -46,12 +48,6 @@ bool CellLayer::init(const CellConfiguration &config)
 			} while (0);
 			return ret;
 }
-
-
-
-
-
-
 
 void CellLayer::displayAll(const CellConfiguration & config)
 {
@@ -73,12 +69,12 @@ void CellLayer::displayAll(const CellConfiguration & config)
 
 						for (int j = 0; j < CellConfig_PlateHorizontalRow; ++j)
 						{
-									_plateHorizontal[i][j] = Plate::create(i, j, (PlateColor)(config._plateHorizontal[i][j]));
+									_plateHorizontal[i][j] = Plate::create(i, j, (CellColor)(config._plateHorizontal[i][j]));
 									if (_plateHorizontal[i][j] == nullptr)
 									{
 												continue;
 									}							
-									//displayCell(i, j, _plateHorizontal[i][j], 1);
+									displayCell(i, j, _plateHorizontal[i][j], 1);
 						}
 			}
 			for (int i = 0; i < CellConfig_PlateVecticalCol; ++i)
@@ -86,12 +82,12 @@ void CellLayer::displayAll(const CellConfiguration & config)
 
 						for (int j = 0; j < CellConfig_PlateVecticalRow; ++j)
 						{
-									_plateVertical[i][j] = Plate::create(i, j, (PlateColor)(config._plateVectical[i][j]));
+									_plateVertical[i][j] = Plate::create(i, j, (CellColor)(config._plateVectical[i][j]));
 									if (_plateVertical[i][j] == nullptr)
 									{
 												continue;
 									}
-									//displayCell(i, j, _plateVertical[i][j], 2);
+									displayCell(i, j, _plateVertical[i][j], 2);
 						}
 			}
 			//有一个checkCell 如果没有格子可以消除，则重置格子
@@ -100,9 +96,9 @@ void CellLayer::displayAll(const CellConfiguration & config)
 			{
 						restoreAction();
 			}
-			auto seq = Sequence::create(DelayTime::create(3), Blink::create(3, 5), NULL);
-			_recordCouldDesCell->runAction(seq);
+			hintTheUsableCell(_recordCouldDesCell);
 			_isCanRunning = true;
+			
 }
 
 void CellLayer::displayCell(int col, int row,Cell * cell, int orientation)
@@ -117,7 +113,7 @@ void CellLayer::displayCell(int col, int row,Cell * cell, int orientation)
 					switch (orientation)
 					{
 					case 0:
-								cell->setPosition(coordinateToVec2(col, row));						
+								cell->setPosition(vc);						
 								break;
 					case 1:							
 								cell->setPosition(vc.x, vc.y - row*(PlateVerticalLeftIdx));
@@ -135,6 +131,21 @@ void CellLayer::displayCell(int col, int row,Cell * cell, int orientation)
 		}
 }
 
+void CellLayer::hintTheUsableCell(Cell * cell)
+{
+			if(cell==nullptr)
+			{
+						log("0005:CellLayer-hintTheUsableCell cell==nullptr!");
+						return;
+			}
+			else
+			{
+						auto seq = Sequence::create(DelayTime::create(3), Blink::create(3, 5), NULL);
+						seq->setTag(cell->getColumn() + cell->getRow() + blinkTag);
+						cell->runAction(seq);
+			}
+}
+
 void CellLayer::restoreAction()
 {
 			if (!_isCanRunning)
@@ -143,7 +154,7 @@ void CellLayer::restoreAction()
 						{
 									for (auto &cell : cells)
 									{
-												if(cell->_isCanMove && cell->_isCanSelected)
+												if(cell!=nullptr &&cell->_isCanMove && cell->_isCanSelected)
 												{
 															cell->stopAllActions();
 															auto moveto = MoveTo::create(0.5f, coordinateToVec2(3, 2));
@@ -153,6 +164,7 @@ void CellLayer::restoreAction()
 												}												
 									}
 						}
+						_isTransformPos = false;
 
 			}
 }
@@ -164,12 +176,17 @@ void CellLayer::restoreStalemate()
 			//打乱格子排序
 			if (!isStalemate())
 			{
+						++_stalemateCellCount;
+						if(_stalemateCellCount>=3)
+						{
+									return;
+						}
 						std::vector<Cell *> mytestbak;
 						for (auto col = 0; col < CellConfig_LocalCellCol; ++col)
 						{
 									for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
 									{
-												if (_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
+												if (_cellsLogic[col][row]!=nullptr &&_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
 												{
 															mytestbak.push_back(_cellsLogic[col][row]);
 												}
@@ -184,7 +201,7 @@ void CellLayer::restoreStalemate()
 						{
 									for(auto row=0;row<CellConfig_LocalCellRow;++row)
 									{
-												if(_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
+												if(_cellsLogic[col][row]!=nullptr && _cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
 												{
 															(*iter)->setColumn(col);
 															(*iter)->setRow(row);
@@ -192,12 +209,13 @@ void CellLayer::restoreStalemate()
 															++iter;
 												}
 									}
-						}
+						}				
+						restoreStalemate();		
 						_isTransformPos = true;
-						restoreStalemate();
+						_stalemateCellCount = 0;
 			}
 			else
-			{
+			{				
 						return;
 			}
 }
@@ -258,6 +276,7 @@ bool CellLayer::isStalemate()
 			auto ret = false;
 			do 
 			{
+
 						_recordCouldDesCell = nullptr;
 						int reBak = 0;
 						for(int colorRe=1; colorRe <=CellEliminateKind;++colorRe)
@@ -268,7 +287,7 @@ bool CellLayer::isStalemate()
 									{
 												for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
 												{
-															if (_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected && static_cast<int>(_cellsLogic[col][row]->getCellColor()) == colorRe)
+															if (_cellsLogic[col][row]!=nullptr &&_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected && static_cast<int>(_cellsLogic[col][row]->getCellColor()) == colorRe)
 															{
 																		sameColorCell.push_back(_cellsLogic[col][row]);
 															}
@@ -313,6 +332,717 @@ bool CellLayer::isStalemate()
 			return ret;
 }
 
+void CellLayer::linkLineInGrid(int col1, int row1, int col2, int row2)
+{
+			Vec2 pos1, pos2;
+			pos1.set(coordinateToVec2(col1, row1));
+			pos2.set(coordinateToVec2(col2, row2));
+			auto line = DrawNode::create();
+			line->drawLine(pos1, pos2, Color4F::BLACK);
+			_linkLineCache.push_back(line);
+			addChild(line, LineZorder::line);
+}
+
+void CellLayer::unLinkLineInGrid(int col1, int row1, int col2, int row2)
+{
+			if (!_linkLineCache.size())
+			{
+						return;
+			}
+			auto & line = _linkLineCache.back();
+			if (line)
+			{
+						line->removeFromParentAndCleanup(true);
+			}
+			_linkLineCache.pop_back();
+}
+
+
+
+
+Cell * CellLayer::getCellFromTable(int col, int row) noexcept
+{
+
+			if (col<0 || col>CellConfig_LocalCellCol - 1 || row<0 || row>CellConfig_LocalCellRow-1)
+			{
+						return nullptr;
+			}
+			return _cellsLogic[col][row];
+
+}
+
+void CellLayer::attackFromSource()
+{
+			for(const auto &cells:_cellsLogic)
+			{
+						for(const auto&cell:cells)
+						{
+									if(cell!=nullptr&&cell->_isCanBeAtteckted&&cell->getLife()>0)
+									{
+												for (const auto &desCell : _touchMoveCells)
+												{
+															if (desCell->_iAttack == 1)
+															{
+																		if (std::abs(cell->getRow() - desCell->getRow()) + std::abs(cell->getColumn() - desCell->getColumn()) == 1)
+																		{
+																					cell->loseLife();
+																		}
+															}
+															//其他攻击
+												}
+									}
+									else
+									{
+												continue;
+									}
+									
+						}
+			}
+
+			for(const auto &plates:_plateVertical)
+			{
+						for(const auto &plate:plates)
+						{
+									if(plate!=nullptr&&plate->_isCanBeAtteckted&&plate->getLife()>0)
+									{
+												for(const auto &desCell:_touchMoveCells)
+												{
+															if((plate->getColumn()==desCell->getColumn() || plate->getColumn()==desCell->getColumn()+1)&&plate->getRow()==desCell->getRow())
+															{
+																		plate->loseLife();
+															}
+												}
+									}
+						}
+
+			}
+
+			for (const auto &plates : _plateHorizontal)
+			{
+						for (const auto &plate : plates)
+						{
+									if (plate != nullptr&&(plate->_isCanBeAtteckted && plate->getLife()>0))
+									{
+												for (const auto &desCell : _touchMoveCells)
+												{
+															if (plate->getColumn() == desCell->getColumn() && (plate->getRow() == desCell->getRow()|| plate->getRow()==desCell->getRow()+1))
+															{
+																		plate->loseLife();
+															}
+												}
+									}
+						}
+
+			}
+}
+
+void CellLayer::fillUpCellOnTop()
+{
+			bool transform = false;
+			for(int i=0;i<CellConfig_LocalCellCol;++i)
+			{
+						if(_cellsLogic[i][CellConfig_LocalCellRow-1]->getLife()<1 &&_plateHorizontal[i][CellConfig_PlateHorizontalRow-1]==nullptr )
+						{
+									//开始补格子
+									auto pos = coordinateToVec2(i, CellConfig_LocalCellRow);								
+									//补格子
+									_cellsLogic[i][CellConfig_LocalCellRow - 1]=srandColorForNewCell(_cellsLogic[i][CellConfig_LocalCellRow - 1]);
+									
+									if(_cellsLogic[i][CellConfig_LocalCellRow - 1]!=nullptr)
+									{
+												_cellsLogic[i][CellConfig_LocalCellRow - 1]->setPosition(Vec2(pos.x, pos.y + 20));
+												//创建移动步伐
+												auto moveto = MoveTo::create((float)CellConfig_CellSpeed, coordinateToVec2(_cellsLogic[i][CellConfig_LocalCellRow - 1]->getColumn(), _cellsLogic[i][CellConfig_LocalCellRow - 1]->getRow()));
+												DelayTime *deltime = nullptr;
+												if (!_cellsLogic[i][CellConfig_LocalCellRow - 1]->_moveActionVec.empty())
+												{
+															deltime = DelayTime::create(0);
+												}
+												else
+												{
+															deltime = DelayTime::create((float)0.65*(CellConfig_CellSpeed)*(_stepOuterTime>1?_stepOuterTime-1:1));
+												}												
+												auto seq = Sequence::create(deltime, moveto, NULL);
+												_cellsLogic[i][CellConfig_LocalCellRow - 1]->_moveActionVec.pushBack(seq);
+												transform = true;
+									}
+									else
+									{
+												log("0009:CellLayer-fillUpCellOnTop-_cellsLogic[i][CellConfig_LocalCellRow - 1]==nullptr!");
+									}
+								
+						}
+			}
+			if(transform)
+			{
+						controlDrop();
+						fillUpCellOnTop();
+			}
+}
+
+void CellLayer::coorVecClear()
+{
+
+}
+
+void CellLayer::swapCell(int sourceCol, int sourceRow, int destCol, int destRow)
+{
+			if(getCellFromTable(sourceCol,sourceRow) ==nullptr || getCellFromTable(destCol,destRow)==nullptr)
+			{
+						return;
+			}
+			Cell *cellbak = _cellsLogic[sourceCol][sourceRow];
+			int colbak = _cellsLogic[sourceCol][sourceRow]->getColumn();
+			int rowbak = _cellsLogic[sourceCol][sourceRow]->getRow();
+
+			_cellsLogic[sourceCol][sourceRow]->setRow(_cellsLogic[destCol][destRow]->getRow());
+			_cellsLogic[sourceCol][sourceRow]->setColumn(_cellsLogic[destCol][destRow]->getColumn());
+
+			_cellsLogic[destCol][destRow]->setRow(rowbak);
+			_cellsLogic[destCol][destRow]->setColumn(colbak);
+
+			_cellsLogic[sourceCol][sourceRow] = _cellsLogic[destCol][destRow];
+			_cellsLogic[destCol][destRow] = cellbak;
+
+
+}
+
+void CellLayer::controlDrop()
+{
+			//开始i降落
+			dropDownCell();
+			//获取移动队列动画,按步数播放移动队列
+			if(!_cellMoveToCoor.empty())
+			{
+						for(unsigned int i=0;i<_cellMoveToCoor.size();++i)
+						{
+									auto moveto = MoveTo::create((float)CellConfig_CellSpeed, coordinateToVec2(_cellMoveToCoor[i]._destCol, _cellMoveToCoor[i]._destRow));									
+									DelayTime *deltime = nullptr;
+									if(!_cellMoveToCoor[i]._sourceCell->_moveActionVec.empty())
+									{
+												deltime = DelayTime::create(0);
+									}
+									else
+									{
+												deltime = DelayTime::create((float)0.65*(CellConfig_CellSpeed)*(_cellMoveToCoor[i]._stepsLev));
+									}
+									auto seq = Sequence::create(deltime,moveto,NULL);
+									_cellMoveToCoor[i]._sourceCell->_moveActionVec.pushBack(seq);	
+						}
+
+						_cellMoveToCoor.clear();
+						
+			}
+			
+}
+
+void CellLayer::animateControl()
+{
+			for (const auto &cells : _cellsLogic)
+			{
+						for (const auto &cell : cells)
+						{
+									if (!cell->_moveActionVec.empty())
+									{
+										
+												cell->stopAllActions();
+												auto seq = Sequence::create(cell->_moveActionVec);
+												cell->runAction(seq);
+												cell->_moveActionVec.clear();
+												
+									}
+						}
+			}
+
+
+
+}
+
+void CellLayer::dropDownCell()
+{
+			//调用逻辑类 计算结果
+			//返回结果 操作格子移动
+			_dropDownTransformPos = false;
+			for(auto col=0;col<CellConfig_LocalCellCol;++col)
+			{									
+						for(auto row = 0;row<CellConfig_LocalCellRow;++row)
+						{
+									if(_cellsLogic[col][row]!=nullptr && _cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->getLife()>0)
+									{					
+												getDrowDownTrackCell(_cellsLogic[col][row]);
+											
+									}
+						}					
+			}
+		
+			if(_dropDownTransformPos)
+			{
+						++_stepOuterTime;
+						dropDownCell();
+			}
+			else
+			{
+						dropRightCell();
+			}
+}
+
+void CellLayer::dropLeftCell()
+{
+			_dropDownTransformPos = false;
+			for (auto col = 0; col < CellConfig_LocalCellCol; ++col)
+			{
+						for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
+						{
+									if (_cellsLogic[col][row] != nullptr && _cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->getLife() > 0)
+									{												
+												getDrowLeftTrackCell(_cellsLogic[col][row]);	
+												if (_dropDownTransformPos)
+												{
+															++_stepOuterTime;
+															dropDownCell();
+															return;
+												}
+									}
+						}
+			}
+			return;
+			
+}
+
+void CellLayer::dropRightCell()
+{
+			_dropDownTransformPos = false;
+			for (auto col = 0; col < CellConfig_LocalCellCol; ++col)
+			{
+						for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
+						{
+									if (_cellsLogic[col][row] != nullptr && _cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->getLife() > 0)
+									{
+												getDrowRightTrackCell(_cellsLogic[col][row]);	
+												if (_dropDownTransformPos)
+												{
+															++_stepOuterTime;
+															dropDownCell();
+															return;
+												}
+									}
+						}
+			}
+			dropLeftCell();			
+}
+
+
+
+void CellLayer::getDrowDownTrackCell(Cell * cell)
+{
+			if (cell == nullptr)
+			{
+						return;
+			}
+			else
+			{
+
+						Coor nextcoor;
+						if (cellCanMoveDown(cell))
+						{
+									nextcoor._SourceCol = cell->getColumn();
+									nextcoor._SourceRow = cell->getRow();
+									nextcoor._destCol = cell->getColumn();
+									nextcoor._destRow = cell->getRow() - 1;
+									nextcoor._stepsLev = _stepOuterTime;
+									nextcoor._sourceCell = cell;
+									_cellMoveToCoor.push_back(nextcoor);
+									swapCell(nextcoor._SourceCol, nextcoor._SourceRow, nextcoor._destCol, nextcoor._destRow);
+									_dropDownTransformPos = true;
+						}			
+						return;
+			}
+}
+
+void CellLayer::getDrowLeftTrackCell(Cell * cell)
+{
+			if (cell == nullptr)
+			{
+						return;
+			}
+			else
+			{
+
+					
+						Coor nextcoor;
+						if (cellCanMoveLeft(cell))
+						{
+									nextcoor._SourceCol = cell->getColumn();
+									nextcoor._SourceRow = cell->getRow();
+									nextcoor._destCol = cell->getColumn() - 1;
+									nextcoor._destRow = cell->getRow() - 1;
+									nextcoor._stepsLev = _stepOuterTime;
+									nextcoor._sourceCell = cell;
+									_cellMoveToCoor.push_back(nextcoor);
+									swapCell(nextcoor._SourceCol, nextcoor._SourceRow, nextcoor._destCol, nextcoor._destRow);
+									_dropDownTransformPos = true;
+						}						
+						return;
+			}
+}
+
+void CellLayer::getDrowRightTrackCell(Cell * cell)
+{
+			if (cell == nullptr)
+			{
+						return;
+			}
+			else
+			{
+
+						
+						Coor nextcoor;					
+						if (cellCanMoveRight(cell))
+						{
+									nextcoor._SourceCol = cell->getColumn();
+									nextcoor._SourceRow = cell->getRow();
+									nextcoor._destCol = cell->getColumn() + 1;
+									nextcoor._destRow = cell->getRow() - 1;
+									nextcoor._stepsLev = _stepOuterTime;
+									nextcoor._sourceCell = cell;
+									_cellMoveToCoor.push_back(nextcoor);		
+									swapCell(nextcoor._SourceCol, nextcoor._SourceRow, nextcoor._destCol, nextcoor._destRow);
+									_dropDownTransformPos = true;
+						}
+						return;
+			}
+}
+
+bool CellLayer::cellCanMoveDown(Cell * cell) noexcept
+{
+			auto ret = false;
+			do 
+			{
+						if(cell==nullptr)
+						{
+									return ret;
+						}
+						auto belowcell = getCellFromTable(cell->getColumn(), cell->getRow() - 1);
+						//钢铁判断
+						if(belowcell==nullptr||belowcell->getLife()>0||_plateHorizontal[cell->getColumn()][cell->getRow()]!=nullptr)
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+bool CellLayer::cellCanMoveLeft(Cell * cell) noexcept
+{
+			auto ret = false;
+			do
+			{
+						if (cell == nullptr)
+						{
+									return ret;
+						}
+						auto leftcell = getCellFromTable(cell->getColumn() - 1, cell->getRow() - 1);
+						if (leftcell == nullptr || leftcell->getLife() > 0 ||((_plateVertical[cell->getColumn()][cell->getRow()]!=nullptr||_plateHorizontal[cell->getColumn()-1][cell->getRow()]!=nullptr)&&(_plateVertical[cell->getColumn()][cell->getRow()-1]!=nullptr || _plateHorizontal[cell->getColumn()][cell->getRow()]!=nullptr)))
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+bool CellLayer::cellCanMoveRight(Cell * cell) noexcept
+{
+			auto ret = false;
+			do
+			{
+						if (cell == nullptr)
+						{
+									return ret;
+						}
+						auto rightcell = getCellFromTable(cell->getColumn() + 1, cell->getRow() - 1);
+						if (rightcell == nullptr || rightcell->getLife() > 0 || ((_plateHorizontal[cell->getColumn()+1][cell->getRow()]!=nullptr || _plateVertical[cell->getColumn()+1][cell->getRow()]!=nullptr)&&(_plateHorizontal[cell->getColumn()][cell->getRow()]!=nullptr||_plateVertical[cell->getColumn()+1][cell->getRow()-1]!=nullptr)))
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+
+bool CellLayer::TouchCellCanMoveDown(Cell * cell) noexcept
+{
+			auto ret = false;
+			do
+			{
+						if (cell == nullptr)
+						{
+									return ret;
+						}
+						auto belowcell = getCellFromTable(cell->getColumn(), cell->getRow() - 1);
+						//钢铁判断
+						if ( _plateHorizontal[cell->getColumn()][cell->getRow()] != nullptr)
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+bool CellLayer::TouchCellCanMoveLeft(Cell * cell) noexcept
+{
+			auto ret = false;
+			do
+			{
+						if (cell == nullptr)
+						{
+									return ret;
+						}
+					
+						if ( ((_plateVertical[cell->getColumn()][cell->getRow()] != nullptr || _plateHorizontal[cell->getColumn() - 1][cell->getRow()] != nullptr) && (_plateVertical[cell->getColumn()][cell->getRow() - 1] != nullptr || _plateHorizontal[cell->getColumn()][cell->getRow()] != nullptr)))
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+bool CellLayer::TouchCellCanMoveRight(Cell * cell) noexcept
+{
+			auto ret = false;
+			do
+			{
+						if (cell == nullptr)
+						{
+									return ret;
+						}
+						
+						if ( ((_plateHorizontal[cell->getColumn() + 1][cell->getRow()] != nullptr || _plateVertical[cell->getColumn() + 1][cell->getRow()] != nullptr) && (_plateHorizontal[cell->getColumn()][cell->getRow()] != nullptr || _plateVertical[cell->getColumn() + 1][cell->getRow() - 1] != nullptr)))
+						{
+									return ret;
+						}
+						ret = true;
+			} while (0);
+			return ret;
+}
+
+Cell *CellLayer::srandColorForNewCell(Cell * cell)
+
+{
+			//std::default_random_engine eng(time(NULL));
+			//std::uniform_int_distribution<int> dis(1, CellEliminateKind);
+			//auto func = std::bind(dis, eng);
+			int num = random(1, 9);
+			auto color = static_cast<CellColor>(num);
+			auto col = cell->getColumn();
+			auto row = cell->getRow();		
+			//cell->stopAllActions();
+			cell->setVisible(true);
+			removeChild(cell);
+			cell = nullptr;
+			cell = Block::create(col, row, color);
+			if(cell!=nullptr)
+			{
+						displayCell(col, row, cell, 0);
+			}
+			
+
+			return cell;
+}
+
+
+
+
+
+
+void CellLayer::destroyAndFillUpCells()
+{
+				
+		
+			if (_touchMoveCells.size() >2)
+			{
+						_isCanRunning = false;
+						CCASSERT(_touchMoveCells.size() <= 35, "0007:CellLayer-destroyAndFillUpCells-_touchMoveCells.size() >=35!");
+						if (_recordCouldDesCell != nullptr)
+						{
+									auto blink = _recordCouldDesCell->getActionByTag(_recordCouldDesCell->getColumn() + _recordCouldDesCell->getRow() + blinkTag);
+									if (blink != nullptr)
+									{
+												_recordCouldDesCell->stopAction(blink);
+												blink->release();
+												_recordCouldDesCell->setVisible(true);
+									}
+									_recordCouldDesCell = nullptr;
+
+						}
+						
+						//处理伤害逻辑
+						attackFromSource();
+						//消除被消除的格子，并减去血量，把血量为0的格子制空格子属性
+						destroyCells();
+
+						
+
+						_stepOuterTime = 0;
+						//计算向下移动格子，并生成下落动画
+						controlDrop();
+						//计算需要补的格子，并生成动画
+						//_stepOuterTime = 0;
+						fillUpCellOnTop();
+
+
+
+
+						//播放动画
+						animateControl();
+
+
+						restoreStalemate();
+						if (_isTransformPos)
+						{
+									restoreAction();
+						}
+						if(_recordCouldDesCell!=nullptr)
+						{
+									hintTheUsableCell(_recordCouldDesCell);									
+						}
+						
+						_isCanRunning = true;
+			}
+			else
+			{
+						return;
+			}
+
+			
+}
+
+void CellLayer::destroyCells()
+{
+			
+			for (auto &desCells : _touchMoveCells)
+			{											
+						desCells->loseLife();											
+			}
+
+			for (auto &cells : _cellsLogic)
+			{
+						for(const auto &cell:cells)
+						{
+									if (cell->getLife() < 1)
+									{											
+												//cell->stopAllActions();
+												cell->initCellToNull();
+												_playerAcquireScoreForCell += cell->getScore();
+												log("score:%d", _playerAcquireScoreForCell);
+									}
+						}
+										
+			}
+
+			//垂直plate
+			for ( auto &plates : _plateVertical)
+			{
+						for ( auto &plate : plates)
+						{
+									if (plate != nullptr&&plate->getLife() <1)
+									{												
+												plate->initCellToNull();
+												removeChild(plate);
+												plate = nullptr;
+
+									}
+						}
+
+			}
+			//horizontal plate
+			for (auto &plates : _plateHorizontal)
+			{
+						for (auto &plate : plates)
+						{
+									if (plate != nullptr && plate->getLife() <1)
+									{												
+												plate->initCellToNull();
+												removeChild(plate);
+												plate = nullptr;
+									}
+						}
+
+			}
+
+
+}
+
+void CellLayer::showLightCells(CellColor col)
+{
+			for (const auto &cells : _cellsLogic)
+			{
+						for (const auto &cell : cells)
+						{
+									if (cell == nullptr)
+									{
+												continue;
+									}
+									if (cell->getCellColor() == col && cell->_isCanSelected && cell->_isCanMove)
+									{
+												if (!cell->_isSelected)
+												{
+															_touchCells.push_back(cell);
+												}	
+												
+												GLProgramCache::getInstance()->addGLProgram(cell->getCellSprite()->getGLProgram(), "normal_effect");
+												cell->getCellSprite()->setGLProgram(GLProgramCache::getInstance()->getGLProgram("light_effect"));
+												
+									}
+									else
+									{
+
+												if (cell->_isCanSelected && cell->_isCanMove)
+												{
+															
+															GLProgramCache::getInstance()->addGLProgram(cell->getCellSprite()->getGLProgram(), "dis_normal_effect");
+															cell->getCellSprite()->setGLProgram(GLProgramCache::getInstance()->getGLProgram("grey_effect"));
+															
+												}
+									}
+						}
+			}
+}
+
+void CellLayer::recoverLightCells(CellColor col)
+{
+			for (const auto &cells : _cellsLogic)
+			{
+						for (const auto &cell : cells)
+						{
+									if (cell == nullptr)
+									{
+												continue;
+									}
+
+									if (cell->getCellColor() == col&& cell->_isCanSelected && cell->_isCanMove)
+									{
+												
+												cell->_isSelected = false;
+												cell->getCellSprite()->setGLProgram(GLProgramCache::getInstance()->getGLProgram("normal_effect"));
+												//GLProgramCache::getInstance()->addGLProgram(cell->getCellSprite()->getGLProgram(), "normal_effect");
+
+									}
+									else
+									{
+												if (cell->_isCanSelected && cell->_isCanMove)
+												{
+															
+															cell->getCellSprite()->setGLProgram(GLProgramCache::getInstance()->getGLProgram("dis_normal_effect"));
+												}
+									}
+						}
+			}
+}
 
 
 
@@ -323,6 +1053,8 @@ void CellLayer::addGreyAndLightShader()
 			std::string shader2 = FileUtils::getInstance()->getStringFromFile("example_LightScale.fsh");
 			GLProgramCache::getInstance()->addGLProgram(GLProgram::createWithByteArrays(ccPositionTextureColor_noMVP_vert, shader2.c_str()), "light_effect");
 }
+
+
 
 void CellLayer::onEnter()
 {
@@ -339,7 +1071,36 @@ bool CellLayer::onTouchBegan(Touch * touch, Event * unused_event)
 			auto ret = false;
 			do 
 			{
-						
+						if(!_isCanRunning)
+						{
+									return ret;
+						}
+						else
+						{
+								
+									for (const auto &cells : _cellsLogic)
+									{
+												for (const auto &cell : cells)
+												{
+
+															if (cell !=nullptr && cell->getLife() > 0 && (cell->getBoundingBox().containsPoint(touch->getLocation())))
+															{
+																		//
+																		log("touch  cell life :%d  col:%d,row:%d", cell->getLife(), cell->getColumn(), cell->getRow());
+																		//
+																		if(cell->_isCanMove && cell->_isCanSelected)
+																		{
+																					cell->_isSelected = true;
+																					showLightCells((CellColor)(cell->getCellColor()));
+																					_touchCells.push_back(cell);
+																					_touchMoveCells.push_back(cell);
+																					return true;
+																		}
+																		return false;
+															}
+												}
+									}
+						}
 						ret = true;
 			} while (0);
 			return ret;
@@ -347,12 +1108,165 @@ bool CellLayer::onTouchBegan(Touch * touch, Event * unused_event)
 
 void CellLayer::onTouchMoved(Touch * touch, Event * unused_event)
 {
+			//移动中，如果没有选择格子，那么不做任何事情
+			//如果是格子，判断颜色是否相同，如果相同，加入链表，并继续判断，否则不作处理
+			if (!_isCanRunning)
+			{
+						
+						return;
+			}
+
+			for (auto &touchlist : _touchCells)
+			{
+						if (touchlist->getBoundingBox().containsPoint(touch->getLocation()))
+						{
+									/*if (touchlist->getLife() <= 0 || touchlist->_isSelected || pow(touchlist->getRow() - _touchMoveCells.back()->getRow(), 2) + pow(touchlist->getColumn() - _touchMoveCells.back()->getColumn(), 2) > 2)
+									{
+												break;
+									}*/
+
+									//添加触摸控制条件
+									
+									if(touchlist->getLife()>0 && ! (touchlist->_isSelected) && pow(touchlist->getRow() - _touchMoveCells.back()->getRow(), 2) + pow(touchlist->getColumn() - _touchMoveCells.back()->getColumn(), 2)<=2)
+									{
+
+												auto cellnow = touchlist;
+												auto cellpre = _touchMoveCells.back();
+												if ((std::abs(cellnow->getColumn()-cellpre->getColumn())+std::abs(cellnow->getRow()-cellpre->getRow()))==1)
+												{
+															if(cellnow->getColumn()==cellpre->getColumn())
+															{
+																		auto maxrow = cellnow->getRow() > cellpre->getRow() ? cellnow->getRow() : cellpre->getRow();
+																		if(_plateHorizontal[cellnow->getColumn()][maxrow]!=nullptr)
+																		{
+																					break;
+																		}
+															}
+															else if(cellnow->getRow()==cellpre->getRow())
+															{
+																		auto maxcol = cellnow->getColumn() > cellpre->getColumn() ? cellnow->getColumn() : cellpre->getColumn();
+																		if(_plateVertical[maxcol][cellnow->getRow()]!=nullptr)
+																		{
+																					break;
+																		}
+
+															}
+												}
+												else 
+												{
+															if(cellpre->getRow()>cellnow->getRow())
+															{
+																		if(cellpre->getColumn()>cellnow->getColumn())
+																		{
+																					if(!TouchCellCanMoveLeft(cellpre))
+																					{
+																								break;
+																					}
+																		}
+																		else if(cellpre->getColumn()<cellnow->getColumn())
+																		{
+																					if(!TouchCellCanMoveRight(cellpre))
+																					{
+																								break;
+																					}
+																		}
+															}
+															else if(cellpre->getRow()<cellnow->getRow())
+															{
+																		if (cellpre->getColumn() > cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveRight(cellnow))
+																					{
+																								break;
+																					}
+																		}
+																		else if(cellpre->getColumn() < cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveLeft(cellnow))
+																					{
+																								break;
+																					}
+																		}
+															}
+												}
+
+
+
+
+
+												touchlist->_isTouchBack = false;
+												touchlist->_isSelected = true;
+												linkLineInGrid(touchlist->getColumn(), touchlist->getRow(), _touchMoveCells.back()->getColumn(), _touchMoveCells.back()->getRow());
+												_touchMoveCells.push_back(touchlist);
+												break;
+									}			
+						}
+			}
+			if (!_touchMoveCells.empty() && !(_touchMoveCells.back()->getBoundingBox().containsPoint(touch->getLocation())))
+			{
+						_touchMoveCells.back()->_isTouchBack = !(_touchMoveCells.back()->_isTouchBack);
+			}
+			if (_touchMoveCells.size() >= 2)
+			{
+						auto cellEnd2 = ++_touchMoveCells.rbegin();
+						if ((*cellEnd2)->getBoundingBox().containsPoint(touch->getLocation()) && _touchMoveCells.back()->_isTouchBack)
+						{
+
+									_touchMoveCells.back()->_isSelected = false;
+									unLinkLineInGrid(0, 0, 0, 0);
+									_touchMoveCells.pop_back();
+						}
+			}
 }
 
 void CellLayer::onTouchEnded(Touch * touch, Event * unused_event)
 {
+			if (!_touchCells.empty())
+			{
+						recoverLightCells((CellColor)(_touchCells.front()->getCellColor()));
+						_touchCells.clear();
+			}
+			if (!_linkLineCache.empty())
+			{
+						for (auto &line : _linkLineCache)
+						{
+									line->removeFromParentAndCleanup(true);
+						}
+						_linkLineCache.clear();
+			}
+			if (!_touchCells.empty())
+			{
+						_touchCells.clear();
+			}
+			if (!_touchMoveCells.empty())
+			{
+						//进入消除判断
+						destroyAndFillUpCells();
+						_touchMoveCells.clear();
+			}
 }
 
 void CellLayer::onTouchCancelled(Touch * touch, Event * unused_event)
 {
+			if (!_touchCells.empty())
+			{
+						recoverLightCells((CellColor)(_touchCells.back()->getCellColor()));
+						_touchCells.clear();
+			}
+			if (!_linkLineCache.empty())
+			{
+						for (auto &line : _linkLineCache)
+						{
+									line->removeFromParentAndCleanup(true);
+						}
+						_linkLineCache.clear();
+			}
+			if (!_touchCells.empty())
+			{
+						_touchCells.clear();
+			}
+			if (!_touchMoveCells.empty())
+			{
+						_touchMoveCells.clear();
+			}
 }

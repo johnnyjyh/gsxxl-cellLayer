@@ -30,7 +30,9 @@ public:
 			bool initBackGround();
 
 			//
-			void GamePlayerScene::initClippingNode();
+			bool initClippingNode();
+
+			bool initCellLayer();
 
 			void onEnter();  //用于控制加载完毕后的开始
 			void onExit();//用于用于控制结束场景后的控制
@@ -53,9 +55,10 @@ public:
 
 
 			ClippingNode *_clipNode{ nullptr };
-
+			CellConfiguration *_config{nullptr};
+			CellLayer *_cellLayer{nullptr};
 			static int gamePath[7];
-
+		
 };
 
 #endif

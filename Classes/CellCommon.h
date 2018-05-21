@@ -28,6 +28,10 @@ USING_NS_CC;
 #define PlateVerticalLeftIdx 1.1
 #define CellEliminateKind 7
 
+//speed
+#define CellConfig_CellSpeed 0.9
+
+#define blinkTag 1
 
 const std::map<std::string, std::string> _StringTypeFile
 {
@@ -43,8 +47,8 @@ const std::map<std::string, std::string> _StringTypeFile
 			{ "grass","operating_obstacle_009.png" },
 			{ "snowPlate","operating_obstacle_002.png" },
 			{ "stellPlate","operating_obstacle_001.png" },
-};
 
+};
 
 
 
@@ -52,25 +56,25 @@ const std::map<std::string, std::string> _StringTypeFile
 
 enum alignas(alignof(int)) CellColor : int
 {
-			nullCell = 0,
-			red = 1,
-			pink,
-			yellow,
-			green,
-			blue,
-			blueand,
-			purple,
-			snowBlock,
-			normalDiamond,
-			grass,
+						nullCell = 0,
+						red = 1,
+						pink,
+						yellow,
+						green,
+						blue,
+						blueand,
+						purple,
+						snowBlock,
+						normalDiamond,
+						grass,
+						nullPlate = 100,
+						snowPlate = 101,
+						stellPlate,
 };
 
-enum PlateColor :int
-{
-			nullPlate = 100,
-			snowPlate=101,
-			stellPlate,
-};
+
+
+
 
 
 enum CellGlobalZorder :int
@@ -82,7 +86,6 @@ enum PlateGlobalZorder :int
 {
 			PlateZorder = 200,
 };
-
 
 
 
@@ -99,8 +102,9 @@ const std::map < std::string , double > CellSpeed
 enum CellLife :int
 {
 			cellLife = 1,
-			snowBlockLife = 1,		
-			normalDiamondLife=1,
+			snowBlockLife = 1,
+			normalDiamondLife = 1,
+			grassLife = 1,
 };
 
 enum PlateLife :int 
@@ -109,6 +113,10 @@ enum PlateLife :int
 			stellPlateLife = 2,
 };
 
+enum LineZorder
+{
+			line = 10000,
+};
 
 
 
@@ -119,3 +127,20 @@ struct CellConfiguration
 			int _plateHorizontal[CellConfig_PlateHorizontalCol][CellConfig_PlateHorizontalRow];
 			int _plateVectical[CellConfig_PlateVecticalCol][CellConfig_PlateVecticalRow];
 };
+
+const std::map<int,std::string> _EnumTypeFromStringCell
+{
+			{ static_cast<int>(CellColor::red),"red" },
+			{ static_cast<int>(CellColor::pink),"pink" },
+			{ static_cast<int>(CellColor::yellow),"yellow" },
+			{ static_cast<int>(CellColor::green),"green" },
+			{ static_cast<int>(CellColor::blue),"blue" },
+			{ static_cast<int>(CellColor::blueand),"blueand" },
+			{ static_cast<int>(CellColor::purple),"purple" },
+			{ static_cast<int>(CellColor::snowBlock),"snowBlock" },
+			{ static_cast<int>(CellColor::normalDiamond),"normalDiamond" },
+			{ static_cast<int>(CellColor::grass),"grass" },
+			{ static_cast<int>(CellColor::snowPlate),"snowPlate" },
+			{ static_cast<int>(CellColor::stellPlate),"stellPlate" },
+};
+

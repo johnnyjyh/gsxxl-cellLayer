@@ -51,74 +51,109 @@ bool Block::init()
 						{
 						case CellColor::nullCell:
 									_colorStr = "nullCell";
-									return ret;
+									return ret;;
 									break;
 						case CellColor::red:
-									_colorStr = "red";
+									//_colorStr="red";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::pink:
-									_colorStr = "pink";
+									//_colorStr = "pink";
 									_isCanMove= true ;
 									_isCanSelected= true ;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::yellow:
-									_colorStr = "yellow";
+								//	_colorStr = "yellow";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::green:
-									_colorStr = "green";
+									//_colorStr = "green";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::blue:
-									_colorStr = "blue";
+									//_colorStr = "blue";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::blueand:
-									_colorStr = "blueand";
+									//_colorStr = "blueand";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::purple:
-									_colorStr = "purple";
+									//_colorStr = "purple";
 									_isCanMove = true;
 									_isCanSelected = true;
-									_life = 1;
+									_iAttack = 1;
+									_score = 1;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::cellLife;
 									break;
 						case CellColor::snowBlock:
-									_colorStr = "snowBlock";			
-									_life = 1;
+									//_colorStr = "snowBlock";	
+									_isCanMove = false;
+									_isCanSelected = false;
+									_isCanBeAtteckted = true;
+									_score = 0;
+									_life = CellLife::snowBlockLife;
 									break;
 						case CellColor::normalDiamond:
-									_colorStr = "normalDiamond";
+									//_colorStr = "normalDiamond";
 									_isCanMove=true;
-									_life = 1;
+									_isCanSelected = false;
+									_isCanBeAtteckted = true;
+									_score = 5;
+									_speed = CellConfig_CellSpeed;
+									_life = CellLife::normalDiamondLife;
 									break;
 						case CellColor::grass:
-									_colorStr = "grass";
-									_life = 0;
+									//_colorStr = "grass";
+									_isCanMove = false;
+									_isCanSelected = false;
+									_score = 0;
+									_life = CellLife::grassLife;
 									break;
 						default:
 									log("0004:Block-init-color is wrong:%d", _color);
 									return ret;
 									break;
 						}
-						_spr = ObjectPoolManager::getInstance()->getObject(_colorStr);
+						int enumIndex = static_cast<int>(_color);
+						_colorStr = _EnumTypeFromStringCell.at(enumIndex);
+						
+						_spr = ObjectPoolManager::getInstance()->getObject(_colorStr);						
 						if(_spr==nullptr)
 						{
 									return ret;
 						}						
-						setScale(0.5);
+						setScale(getSingleTiledSize.x/_spr->getContentSize().width);
 						addChild(_spr);
 						ret = true;
 			} while (0);
@@ -129,5 +164,5 @@ void Block::destroy()
 {
 			ObjectPoolManager::getInstance()->pushObject(_colorStr, _spr);
 			removeChild(_spr);
-		
+			_spr = nullptr;
 }

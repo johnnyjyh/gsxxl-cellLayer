@@ -41,38 +41,33 @@ GamePlayerScene * GamePlayerScene::create(const CellConfiguration &config)
 
 bool GamePlayerScene::init(const CellConfiguration &config)
 {
-			Layer::init();	
+			auto ret = false;
+			do 
+			{
+						Layer::init();
+						_config = const_cast<CellConfiguration *>(&config);
 
-			loadAnimate();
+						loadAnimate();
 
-			initBackGround();
+						initBackGround();
 
-			initClippingNode();
-			
+						initClippingNode();
+
+						CC_BREAK_IF(!initCellLayer());
+						//createCellsForPlant();
+
+						auto menuitem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", [&](Ref *) {
+									Director::getInstance()->end();
+						});
+						menuitem->setScale(1.0f);
+						auto menu = Menu::create(menuitem, NULL);
+						menu->setPosition(Vec2(winSize.width - menuitem->getBoundingBox().size.width / 2, winSize.height - menuitem->getBoundingBox().size.height / 2));
+
+						addChild(menu);
+						ret = true;
+			} while (0);
 		
-			//createCellsForPlant();
-		
-			auto cellLayer = CellLayer::create(config);
-			addChild(cellLayer);
-
-			
-			
-
-	
-
-			
-	
-
-
-			auto menuitem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", [&](Ref *) {
-						Director::getInstance()->end();
-			});
-			menuitem->setScale(1.0f);
-			auto menu = Menu::create(menuitem, NULL);
-			menu->setPosition(Vec2(winSize.width - menuitem->getBoundingBox().size.width / 2, winSize.height - menuitem->getBoundingBox().size.height / 2));
-
-			addChild(menu);
-			return true;
+			return ret;
 }
 
 
@@ -106,29 +101,47 @@ bool GamePlayerScene::initBackGround()
 			return true;
 }
 
-void GamePlayerScene::initClippingNode()
+bool GamePlayerScene::initClippingNode()
 {
-		
+			auto ret = false;
+			do 
+			{
+						_clipNode = ClippingNode::create();
 
-			_clipNode = ClippingNode::create();
+						_clipNode->setInverted(false);
 
-			_clipNode->setInverted(false);
+						_clipNode->setAlphaThreshold(0.0f);
 
-			_clipNode->setAlphaThreshold(0.0f);
+						auto stencil = Node::create();
 
-			auto stencil = Node::create();
+						auto drawnode = DrawNode::create();
+						float coverY = towerArea - 10;
+						Vec2 point[4]{ Vec2(0,0),Vec2(0,coverY),Vec2(winSize.width,coverY),Vec2(winSize.width,0) };
+						drawnode->drawPolygon(point, 4, Color4F(1, 0, 0, 1), 1, Color4F(0, 1, 0, 1));
 
-			auto drawnode = DrawNode::create();
-			float coverY = towerArea - 10;
-			Vec2 point[4]{ Vec2(0,0),Vec2(0,coverY),Vec2(winSize.width,coverY),Vec2(winSize.width,0) };
-			drawnode->drawPolygon(point, 4, Color4F(1, 0, 0, 1), 1, Color4F(0, 1, 0, 1));
+						stencil->addChild(drawnode, 1);
 
-			stencil->addChild(drawnode, 1);
+						_clipNode->setStencil(stencil);
+						//_clipNode->setGlobalZOrder(10000);
+						addChild(_clipNode, 2);
+						ret = true;
+			} while (0);
+			return ret;
 
-			_clipNode->setStencil(stencil);
-
-			addChild(_clipNode, 2);
 	
+}
+
+bool GamePlayerScene::initCellLayer()
+{
+			auto ret = false;
+			do 
+			{
+						_cellLayer = CellLayer::create(*_config);
+						_clipNode->addChild(_cellLayer);
+						ret = true;
+			} while (0);
+
+			return ret;
 }
 
 

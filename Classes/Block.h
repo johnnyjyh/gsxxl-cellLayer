@@ -7,11 +7,8 @@ public:
 			static Block *create(int col,int row,CellColor color);
 			bool init();
 			void destroy();
+			void onEnter() { Cell::onEnter(); };
+			void onExit() { Cell::onExit(); };
 
-
-
-
-			std::vector<Vec2> _moveVec;
-			Vector<FiniteTimeAction *> _moveActionVec;
 
 };

@@ -61,7 +61,7 @@ void ObjectPoolManager::pushObject(const std::string &type, Sprite *spr)
 						}
 						else
 						{
-									while(spr->getReferenceCount ()>0)
+									if(spr->getReferenceCount ()>0)
 									{
 												spr->release();
 									}
@@ -80,6 +80,7 @@ Sprite *ObjectPoolManager::getObject(const std::string &type)
 									for (int i = 0; i < _size; ++i)
 									{
 												auto spr = Sprite::createWithSpriteFrameName(config.second);
+												spr->retain();
 												_ObjectPool[config.first].pushBack(spr);
 									}
 						}
@@ -105,6 +106,7 @@ Sprite *ObjectPoolManager::getObject(const std::string &type)
 									for (int i = 0; i < 10; ++i)
 									{
 												auto spr = Sprite::createWithSpriteFrameName((_StringTypeFile.at(type)));
+												spr->retain();
 												_ObjectPool[type].pushBack(spr);
 									}
 						}
@@ -118,7 +120,14 @@ void ObjectPoolManager::clearObject(bool isClear)
 {
 			for(auto objectMap:_ObjectPool)
 			{
-						objectMap.second.clear();
+						for(auto spr: objectMap.second )
+						{
+									if (spr->getReferenceCount() > 0)
+									{
+												spr->release();
+									}
+						}
+						
 			}
 			_ObjectPool.clear();
 }
