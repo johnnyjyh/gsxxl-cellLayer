@@ -1,5 +1,5 @@
 #include "GamePlayScene.h"
-
+#include "PlayerDateControl.h"
 
 
 
@@ -44,7 +44,9 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 			auto ret = false;
 			do 
 			{
-						Layer::init();
+
+						Layer::init();					
+						
 						_config = const_cast<CellConfiguration *>(&config);
 
 						loadAnimate();
@@ -56,6 +58,10 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 						CC_BREAK_IF(!initCellLayer());
 						//createCellsForPlant();
 
+
+					
+						
+						
 						auto menuitem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", [&](Ref *) {
 									Director::getInstance()->end();
 						});
@@ -149,24 +155,7 @@ bool GamePlayerScene::initCellLayer()
 
 bool GamePlayerScene::loadAnimate()
 {
-			auto ret = false;
-			do
-			{
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("battery_attack/tower_create.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("tower/tower_bullet_attack.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("tower/tower_bullet_burst.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("pumpkin_walk/pumpkin_walk.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("pumpkin_rest/pumpkin_reset.plist");						
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("pumpkin_death/pumpkin_death.plist");			
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("tiled/tiled.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("tower/tower_life.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("playerItem/lifeItem.plist");
-						SpriteFrameCache::getInstance()->addSpriteFramesWithFile("tiled/barrier.plist");
-						
-						ret = true;
-			} while (0);
-			
-			return ret;
+			return true;
 }
 
 
@@ -203,4 +192,9 @@ void GamePlayerScene::onTouchEnded(Touch * touch, Event * unused_event)
 
 void GamePlayerScene::onTouchCancelled(Touch * touch, Event * unused_event)
 {
+}
+
+void GamePlayerScene::update(float dt)
+{
+			
 }

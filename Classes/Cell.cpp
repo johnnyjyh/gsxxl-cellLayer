@@ -16,6 +16,7 @@ Rect Cell::getBoundingBox() noexcept
 void Cell::initCellToNull() noexcept
 {
 			destroy();
+			removeAllChildren();
 			_life = 0;
 			_isSelected = false;
 			_isCanSelected = false;

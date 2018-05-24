@@ -39,7 +39,11 @@ public:
 
 			//ºËÐÄÏû³ýÂß¼­
 			//¹¥»÷¼ì²â
+			void grantAttackTypeForCell();
 			void attackFromSource();
+			Cell *getVerticalPlate(int col, int row);
+			Cell *getHorizontalPlate(int col, int row);
+			void attackFromDesCell(Cell *cell);
 			//²¹¸ñ×Ó£¬¶¥ÅÅ
 			void fillUpCellOnTop();
 
@@ -75,6 +79,9 @@ public:
 			void recoverLightCells(CellColor col);
 			void showLightCells(CellColor col);
 
+			//item for cells
+			void shffuleCellsforMenu();
+
 			void onEnter();
 			void onExit();
 
@@ -95,8 +102,10 @@ public:
 			bool _isTransformPos{ false };
 			bool _dropDownTransformPos{ false };
 
+
 			int _stalemateCellCount{ 0 };
 			Cell *_recordCouldDesCell{ nullptr };
+			int _cellPowerNum{ 0 };
 			int _playerAcquireScoreForCell{ 0 };
 			int _stepOuterTime{ 0 };
 			double _stepWatiTime{ 0.0 };

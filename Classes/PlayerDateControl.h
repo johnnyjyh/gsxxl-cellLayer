@@ -1,5 +1,6 @@
 #pragma once
 #include "GamePlayScene.h"
+#include "ItemShuffleCells.h"
 
 
 
@@ -16,6 +17,12 @@ public:
 			
 			CellConfiguration _config;//cell config
 			static PlayerDateControl *_instance;
+
+			bool loadAnimate();
+
+
+
+		
 };
 
 //struct configuration

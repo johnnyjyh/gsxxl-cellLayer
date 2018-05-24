@@ -91,12 +91,19 @@ void CellLayer::displayAll(const CellConfiguration & config)
 						}
 			}
 			//有一个checkCell 如果没有格子可以消除，则重置格子
+
+
+
 			restoreStalemate();
 			if(_isTransformPos)
 			{
 						restoreAction();
 			}
-			hintTheUsableCell(_recordCouldDesCell);
+			if(_recordCouldDesCell!=nullptr)
+			{
+						hintTheUsableCell(_recordCouldDesCell);
+			}
+
 			_isCanRunning = true;
 			
 }
@@ -157,6 +164,7 @@ void CellLayer::restoreAction()
 												if(cell!=nullptr &&cell->_isCanMove && cell->_isCanSelected)
 												{
 															cell->stopAllActions();
+															//DelayTime *deltime = DelayTime::create((float)(CellConfig_CellSpeed)*(_stepOuterTime > 1 ? _stepOuterTime - 1 : 1));
 															auto moveto = MoveTo::create(0.5f, coordinateToVec2(3, 2));
 															auto moveback = MoveTo::create(0.5f, coordinateToVec2(cell->getColumn(), cell->getRow()));
 															auto sequence_moveTo_moveBack = Sequence::create(moveto, moveback, NULL);
@@ -232,39 +240,138 @@ int CellLayer::computeTheOneCell(std::vector<Cell *> &cells, Cell * cellCurrent,
 			else
 			{
 						int num = 1;
+						int maxline =0;
 						auto re = cellCurrent;					
 						auto re2 = cells.begin();
 						
 						for (; re2 != cells.end(); ++re2)
 						{
-									if (((*re2)->getRow() == re->getRow() || (*re2)->getColumn() == re->getColumn()) && (*re2)->_isUsedLogic == false)
+								
+									auto cellnow = *re2;
+									auto cellpre = cellCurrent;
+									if (cellnow->getLife() > 0  && pow(cellnow->getRow() - cellpre->getRow(), 2) + pow(cellnow->getColumn() - cellpre->getColumn(), 2) <= 2)
 									{
-												if (abs((*re2)->getColumn() - re->getColumn()) == 1 || abs((*re2)->getRow() - re->getRow()) == 1)
+												
+												if (cellnow->getRow() == cellpre->getRow() && cellnow->getColumn() == cellpre->getRow())
 												{
-															(*re2)->_isUsedLogic = true;
-															re->_isUsedLogic = true;
-															num += computeTheOneCell(cells, *re2, count);
+															continue;
 												}
-									}
-									else if (((*re2)->getColumn() != re->getColumn() && (*re2)->getRow() != re->getRow()) && (*re2)->_isUsedLogic == false)
-									{
-												if (abs((*re2)->getColumn() - re->getColumn()) + abs((*re2)->getRow() - re->getRow()) == 2)
+												if ((std::abs(cellnow->getColumn() - cellpre->getColumn()) + std::abs(cellnow->getRow() - cellpre->getRow())) == 1)
 												{
-															(*re2)->_isUsedLogic = true;
-															re->_isUsedLogic = true;
-															num += computeTheOneCell(cells, *re2, count);
+															if (cellnow->getColumn() == cellpre->getColumn())
+															{
+																		auto maxrow = cellnow->getRow() > cellpre->getRow() ? cellnow->getRow() : cellpre->getRow();
+																		if (_plateHorizontal[cellnow->getColumn()][maxrow] != nullptr)
+																		{
+																					continue;
+																		}
+															}
+															else if (cellnow->getRow() == cellpre->getRow())
+															{
+																		auto maxcol = cellnow->getColumn() > cellpre->getColumn() ? cellnow->getColumn() : cellpre->getColumn();
+																		if (_plateVertical[maxcol][cellnow->getRow()] != nullptr)
+																		{
+																					continue;
+																		}
+
+															}
 												}
-									}
-									else
-									{
-												continue;
+												else
+												{
+															if (cellpre->getRow() > cellnow->getRow())
+															{
+																		if (cellpre->getColumn() > cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveLeft(cellpre))
+																					{
+																								continue;
+																					}
+																		}
+																		else if (cellpre->getColumn() < cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveRight(cellpre))
+																					{
+																								continue;
+																					}
+																		}
+															}
+															else if (cellpre->getRow() < cellnow->getRow())
+															{
+																		if (cellpre->getColumn() > cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveRight(cellnow))
+																					{
+																								continue;
+																					}
+																		}
+																		else if (cellpre->getColumn() < cellnow->getColumn())
+																		{
+																					if (!TouchCellCanMoveLeft(cellnow))
+																					{
+																								continue;
+																					}
+																		}
+															}
+												}
+
+
+
+
+
+
+
+
+
+
+
+
+												if (cellnow->_isUsedLogic == false)
+												{					
+															auto numbak = num;
+															cellnow->_isUsedLogic = true;
+															num += computeTheOneCell(cells, cellnow, count);
+															if(num>maxline)
+															{
+																		maxline = num;
+																		if(maxline>=3)
+																		{
+																					break;
+																		}
+															}
+															num = numbak;
+															cellnow->_isUsedLogic = false;														
+												}
+												//回归初始状态
+												
+
+												/*if (((*re2)->getRow() == re->getRow() || (*re2)->getColumn() == re->getColumn()) && (*re2)->_isUsedLogic == false)
+												{
+															if (abs((*re2)->getColumn() - re->getColumn()) == 1 || abs((*re2)->getRow() - re->getRow()) == 1)
+															{
+																		(*re2)->_isUsedLogic = true;
+																		re->_isUsedLogic = true;
+																		num += computeTheOneCell(cells, *re2, count);
+															}
+												}
+												else if (((*re2)->getColumn() != re->getColumn() && (*re2)->getRow() != re->getRow()) && (*re2)->_isUsedLogic == false)
+												{
+															if (abs((*re2)->getColumn() - re->getColumn()) + abs((*re2)->getRow() - re->getRow()) == 2)
+															{
+																		(*re2)->_isUsedLogic = true;
+																		re->_isUsedLogic = true;
+																		num += computeTheOneCell(cells, *re2, count);
+															}
+												}
+												else
+												{
+															continue;
+												}*/
 									}
 						}
 
-
-						if (num > count)
+						if (maxline > count)
 						{
-									count = num;
+									count = maxline;
 						}
 						return count;
 			}
@@ -300,19 +407,19 @@ bool CellLayer::isStalemate()
 
 									for (unsigned int i = 0; i < sameColorCell.size(); ++i)
 									{
+												sameColorCell[i]->_isUsedLogic = false;
 												isCanBak = computeTheOneCell(sameColorCell, sameColorCell[i], 0);
 												if (isCanBak > isCan)
 												{
 															isCan = isCanBak;
 												}
-												//log("color %d:  isCan %d", colorRe, isCanBak);
+												log("color %d:  isCan %d", colorRe, isCanBak);
 												if (isCan >= 3)
 												{
 															_recordCouldDesCell = sameColorCell[i];
 															break;
 												}
-												isCanBak = 0;
-												
+												isCanBak = 0;											
 									}
 
 
@@ -371,68 +478,329 @@ Cell * CellLayer::getCellFromTable(int col, int row) noexcept
 
 }
 
+void CellLayer::grantAttackTypeForCell()
+{
+			std::vector<Cell *>cellsKeeper;
+			for (const auto &cells : _cellsLogic)
+			{
+						for (const auto &cell : cells)
+						{									
+									if(cell!=nullptr && cell->getLife()>0 && (static_cast<int>(cell->getCellColor())>0&& static_cast<int>(cell->getCellColor()) <=CellEliminateKind)&&cell->_iAttack==1)
+									{
+												cellsKeeper.push_back(cell);
+									}
+						}
+			}
+			std::default_random_engine eng;
+			std::default_random_engine eng2;
+			std::uniform_int_distribution<int> distype(2, 4);
+			std::uniform_int_distribution<int> discell(0, cellsKeeper.size()-1);
+			auto attacktype = std::bind(distype, eng);
+			auto cellnum = std::bind(discell, eng2);
+			int num = cellnum();
+			//int type = attacktype();
+		
+			srand((unsigned)time(NULL));
+			cellsKeeper[num]->_iAttack = random(2, 4);
+
+			//处理动作
+			Sprite *spr = nullptr;
+			if(cellsKeeper[num]->_iAttack ==2)
+			{
+						spr = Sprite::createWithSpriteFrameName("operating_obstacle_008.png");
+			}
+			else if(cellsKeeper[num]->_iAttack ==3)
+			{
+						spr = Sprite::createWithSpriteFrameName("operating_obstacle_006.png");
+			}
+			else if(cellsKeeper[num]->_iAttack ==4)
+			{
+						spr = Sprite::createWithSpriteFrameName("operating_obstacle_007.png");
+			}
+			//spr->setScale(getSingleTiledSize.x / spr->getContentSize().width);
+			//spr->retain();
+			/*auto func = CallFuncN::create([=](Node *node) {
+						node->addChild(spr);
+			});		*/
+			//DelayTime *deltime = DelayTime::create((float)0.32*(CellConfig_CellSpeed)*(_stepOuterTime > 1 ? _stepOuterTime - 1 : 1));
+		//	auto seq = Sequence::create( func, NULL);
+			cellsKeeper[num]->addChild(spr);
+			cellsKeeper.clear();
+}
+
 void CellLayer::attackFromSource()
 {
-			for(const auto &cells:_cellsLogic)
+			//for(const auto &cells:_cellsLogic)
+			//{
+			//			for(const auto&cell:cells)
+			//			{
+			//						if(cell!=nullptr&&cell->getLife()>0)
+			//						{
+			//									for (const auto &desCell : _touchMoveCells)
+			//									{
+			//												if(cell->getRow()==desCell->getRow() &&cell->getColumn()==desCell->getColumn())
+			//												{
+			//															continue;
+			//												}
+			//												if (desCell->_iAttack == 1)
+			//												{
+			//															if (cell->getCellColor()>CellEliminateKind&&cell->_isCanBeAtteckted&&std::abs(cell->getRow() - desCell->getRow()) + std::abs(cell->getColumn() - desCell->getColumn()) == 1)
+			//															{
+			//																		cell->loseLife();
+			//															}
+			//												}
+			//												else if(desCell->_iAttack==2)
+			//												{
+			//															if(cell->getRow()==desCell->getRow()&&std::abs(cell->getColumn()-desCell->getColumn())<=2 )
+			//															{
+			//																		cell->loseLife();
+			//															}
+			//															for(const auto &plates:_plateVertical)
+			//															{
+			//																		for(const auto &plate:plates)
+			//																		{
+			//																					if(plate!=nullptr&&plate->_isCanBeAtteckted&&plate->getLife()>0&&plate->getRow()==desCell->getRow()&&std::abs(plate->getColumn()-desCell->getColumn())<=2)
+			//																					{
+			//																								plate->loseLife();
+			//																					}
+			//																		}
+			//															}
+
+			//												}
+			//												else if(desCell->_iAttack==3)
+			//												{
+			//															if(cell->getColumn()==desCell->getColumn() &&std::abs(cell->getRow()-desCell->getRow())<=2)
+			//															{
+			//																		cell->loseLife();
+			//															}
+			//															for(const auto &plates:_plateHorizontal)
+			//															{
+			//																		for(const auto &plate:plates)
+			//																		{
+			//																					if(plate!=nullptr &&plate->_isCanBeAtteckted&& plate->getLife()>0 && plate->getColumn()==desCell->getColumn() &&std::abs(plate->getRow()-desCell->getRow())<=2)
+			//																					{
+			//																								plate->loseLife();
+			//																					}
+			//																		}
+			//															}
+			//												}
+			//												else if(desCell->_iAttack==4)
+			//												{
+
+			//												}
+			//												//其他攻击
+			//									}
+			//						}
+			//						else
+			//						{
+			//									continue;
+			//						}
+			//						
+			//			}
+			//}
+
+			//for(const auto &plates:_plateVertical)
+			//{
+			//			for(const auto &plate:plates)
+			//			{
+			//						if(plate!=nullptr&&plate->_isCanBeAtteckted&&plate->getLife()>0)
+			//						{
+			//									for(const auto &desCell:_touchMoveCells)
+			//									{
+			//												if((plate->getColumn()==desCell->getColumn() || plate->getColumn()==desCell->getColumn()+1)&&plate->getRow()==desCell->getRow())
+			//												{
+			//															plate->loseLife();
+			//												}
+			//									}
+			//						}
+			//			}
+
+			//}
+
+			//for (const auto &plates : _plateHorizontal)
+			//{
+			//			for (const auto &plate : plates)
+			//			{
+			//						if (plate != nullptr&&(plate->_isCanBeAtteckted && plate->getLife()>0))
+			//						{
+			//									for (const auto &desCell : _touchMoveCells)
+			//									{
+			//												if (plate->getColumn() == desCell->getColumn() && (plate->getRow() == desCell->getRow()|| plate->getRow()==desCell->getRow()+1))
+			//												{
+			//															plate->loseLife();
+			//												}
+			//									}
+			//						}
+			//			}
+
+			//}
+			for(const auto &desCell:_touchMoveCells)
 			{
-						for(const auto&cell:cells)
+						if(desCell!=nullptr && desCell->getLife()>0&&desCell->_isCanBeAtteckted)
 						{
-									if(cell!=nullptr&&cell->_isCanBeAtteckted&&cell->getLife()>0)
+									attackFromDesCell(desCell);
+						}
+			}
+			
+}
+
+Cell * CellLayer::getVerticalPlate(int col, int row)
+{
+			if(col<0||col>=CellConfig_PlateVecticalCol||row<0||row>=CellConfig_PlateVecticalRow)
+			{
+						return nullptr;
+			}
+			return _plateVertical[col][row];
+}
+
+Cell * CellLayer::getHorizontalPlate(int col, int row)
+{
+			if(col<0|| col>=CellConfig_PlateHorizontalCol || row<0||row>=CellConfig_PlateHorizontalRow)
+			{
+						return nullptr;
+			}
+			return _plateHorizontal[col][row];
+}
+
+void CellLayer::attackFromDesCell(Cell * cell)
+{
+			if(cell==nullptr)
+			{
+						return;
+			}
+			else
+			{
+						if(cell->_iAttack==1)
+						{
+									Cell *beattcell = nullptr;
+									Cell *beattPlate = nullptr;
+									int verCol = 0;
+									int verColMax = 0;
+									beattPlate = getVerticalPlate(cell->getColumn(), cell->getRow());
+									if(beattPlate!=nullptr&&beattPlate->getLife()>0)
 									{
-												for (const auto &desCell : _touchMoveCells)
+												verCol = 0;
+												if(beattPlate->_isCanBeAtteckted)
 												{
-															if (desCell->_iAttack == 1)
-															{
-																		if (std::abs(cell->getRow() - desCell->getRow()) + std::abs(cell->getColumn() - desCell->getColumn()) == 1)
-																		{
-																					cell->loseLife();
-																		}
-															}
-															//其他攻击
+															beattPlate->loseLife();
 												}
 									}
 									else
 									{
-												continue;
+												verCol = -1;
+									}
+									beattPlate = getVerticalPlate(cell->getColumn() + 1, cell->getRow());
+									if (beattPlate != nullptr&&beattPlate->getLife() > 0)
+									{
+												verColMax = 0;
+												if (beattPlate->_isCanBeAtteckted)
+												{
+															beattPlate->loseLife();
+												}
+									}
+									else
+									{
+												verColMax = 1;
+									}
+									for(int i=cell->getColumn()+verCol;i<= cell->getColumn() + verColMax;++i)
+									{
+												beattcell = getCellFromTable(i, cell->getRow());
+												if(beattcell!=nullptr &&static_cast<int>(beattcell->getCellColor())>CellEliminateKind &&beattcell->getLife()>0 && beattcell->_isCanBeAtteckted)
+												{
+															beattcell->loseLife();
+												}
 									}
 									
-						}
-			}
+									/////////////////////////////////////
+									int honRow = 0;
+									int honRowMax = 0;
 
-			for(const auto &plates:_plateVertical)
-			{
-						for(const auto &plate:plates)
-						{
-									if(plate!=nullptr&&plate->_isCanBeAtteckted&&plate->getLife()>0)
+									beattcell = nullptr;
+									beattPlate = getHorizontalPlate(cell->getColumn(), cell->getRow());									
+									if (beattPlate != nullptr&&beattPlate->getLife() > 0)
 									{
-												for(const auto &desCell:_touchMoveCells)
+												honRow = 0;
+												if (beattPlate->_isCanBeAtteckted)
 												{
-															if((plate->getColumn()==desCell->getColumn() || plate->getColumn()==desCell->getColumn()+1)&&plate->getRow()==desCell->getRow())
+															beattPlate->loseLife();
+												}
+									}
+									else
+									{
+												honRow = -1;
+									}
+									beattPlate = getHorizontalPlate(cell->getColumn() , cell->getRow()+1);
+									if (beattPlate != nullptr&&beattPlate->getLife() > 0)
+									{
+												honRowMax = 0;
+												if (beattPlate->_isCanBeAtteckted)
+												{
+															beattPlate->loseLife();
+												}
+									}
+									else
+									{
+												honRowMax = 1;
+									}
+									for (int i = cell->getRow()+verCol; i <= cell->getRow() + verColMax; ++i)
+									{
+												beattcell = getCellFromTable(cell->getColumn(),i);
+												if (beattcell != nullptr &&static_cast<int>(beattcell->getCellColor()) > CellEliminateKind &&beattcell->getLife() > 0 && beattcell->_isCanBeAtteckted)
+												{
+															beattcell->loseLife();
+												}
+									}
+
+									
+						}
+						else if(cell->_iAttack==2)
+						{
+									Cell *beattcell = nullptr;
+									Cell *beattPlate = nullptr;
+									for(int i=cell->getColumn()-2;i<=cell->getColumn()+2;++i)
+									{
+												beattcell = getCellFromTable(i, cell->getRow());
+												if(beattcell!=nullptr&&beattcell->getLife()>0&&beattcell->_isCanBeAtteckted)
+												{
+															beattcell->loseLife();
+															if(beattcell->_iAttack>0)
 															{
-																		plate->loseLife();
+																		attackFromDesCell(beattcell);
 															}
+												}
+												beattPlate = getVerticalPlate(i, cell->getRow());
+												if (beattPlate != nullptr&&beattPlate->getLife() > 0 && beattPlate->_isCanBeAtteckted)
+												{
+															beattPlate->loseLife();
+												}											
+									}
+						}
+						else if(cell->_iAttack==3)
+						{
+									Cell *beattcell = nullptr;
+									Cell *beattPlate = nullptr;
+									for (int i = cell->getRow() - 2; i <= cell->getRow() + 2; ++i)
+									{
+												beattcell = getCellFromTable(cell->getColumn(), i);
+												if (beattcell != nullptr&&beattcell->getLife() > 0 && beattcell->_isCanBeAtteckted)
+												{
+															beattcell->loseLife();
+															if (beattcell->_iAttack >0)
+															{
+																		attackFromDesCell(beattcell);
+															}
+												}
+												beattPlate = getHorizontalPlate(cell->getColumn(), i);
+												if (beattPlate != nullptr&&beattPlate->getLife() > 0 && beattPlate->_isCanBeAtteckted)
+												{
+															beattPlate->loseLife();
 												}
 									}
 						}
-
-			}
-
-			for (const auto &plates : _plateHorizontal)
-			{
-						for (const auto &plate : plates)
+						else if(cell->_iAttack==4)
 						{
-									if (plate != nullptr&&(plate->_isCanBeAtteckted && plate->getLife()>0))
-									{
-												for (const auto &desCell : _touchMoveCells)
-												{
-															if (plate->getColumn() == desCell->getColumn() && (plate->getRow() == desCell->getRow()|| plate->getRow()==desCell->getRow()+1))
-															{
-																		plate->loseLife();
-															}
-												}
-									}
-						}
 
+						}
 			}
 }
 
@@ -837,13 +1205,16 @@ Cell *CellLayer::srandColorForNewCell(Cell * cell)
 			//std::uniform_int_distribution<int> dis(1, CellEliminateKind);
 			//auto func = std::bind(dis, eng);
 			int num = random(1, 9);
+			if(num==8)
+			{
+						num = 1;
+			}
 			auto color = static_cast<CellColor>(num);
 			auto col = cell->getColumn();
 			auto row = cell->getRow();		
 			//cell->stopAllActions();
 			cell->setVisible(true);
 			removeChild(cell);
-			cell = nullptr;
 			cell = Block::create(col, row, color);
 			if(cell!=nullptr)
 			{
@@ -866,7 +1237,7 @@ void CellLayer::destroyAndFillUpCells()
 			if (_touchMoveCells.size() >2)
 			{
 						_isCanRunning = false;
-						CCASSERT(_touchMoveCells.size() <= 35, "0007:CellLayer-destroyAndFillUpCells-_touchMoveCells.size() >=35!");
+						CCASSERT(_touchMoveCells.size() <= 35, "0007:CellLayer-destroyAndFillUpCells-_touchMoveCells.size() >=35!");			
 						if (_recordCouldDesCell != nullptr)
 						{
 									auto blink = _recordCouldDesCell->getActionByTag(_recordCouldDesCell->getColumn() + _recordCouldDesCell->getRow() + blinkTag);
@@ -880,11 +1251,13 @@ void CellLayer::destroyAndFillUpCells()
 
 						}
 						
+						
+						
 						//处理伤害逻辑
 						attackFromSource();
 						//消除被消除的格子，并减去血量，把血量为0的格子制空格子属性
 						destroyCells();
-
+					
 						
 
 						_stepOuterTime = 0;
@@ -894,18 +1267,22 @@ void CellLayer::destroyAndFillUpCells()
 						//_stepOuterTime = 0;
 						fillUpCellOnTop();
 
-
-
+						if (_cellPowerNum >= 5)
+						{
+									grantAttackTypeForCell();
+									_cellPowerNum = 0;
+						}
 
 						//播放动画
 						animateControl();
 
-
+						//检测格子
 						restoreStalemate();
 						if (_isTransformPos)
 						{
 									restoreAction();
 						}
+	
 						if(_recordCouldDesCell!=nullptr)
 						{
 									hintTheUsableCell(_recordCouldDesCell);									
@@ -925,8 +1302,11 @@ void CellLayer::destroyCells()
 {
 			
 			for (auto &desCells : _touchMoveCells)
-			{											
-						desCells->loseLife();											
+			{							
+						if(desCells->getLife()>0)
+						{
+									desCells->loseLife();
+						}								
 			}
 
 			for (auto &cells : _cellsLogic)
@@ -938,6 +1318,11 @@ void CellLayer::destroyCells()
 												//cell->stopAllActions();
 												cell->initCellToNull();
 												_playerAcquireScoreForCell += cell->getScore();
+
+
+												_cellPowerNum += cell->getScore();
+
+
 												log("score:%d", _playerAcquireScoreForCell);
 									}
 						}
@@ -1055,6 +1440,47 @@ void CellLayer::addGreyAndLightShader()
 }
 
 
+
+void CellLayer::shffuleCellsforMenu()
+{
+			_isCanRunning = false;
+			std::vector<Cell *> mytestbak;
+			for (auto col = 0; col < CellConfig_LocalCellCol; ++col)
+			{
+						for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
+						{
+									if (_cellsLogic[col][row] != nullptr &&_cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
+									{
+												mytestbak.push_back(_cellsLogic[col][row]);
+									}
+						}
+			}
+			std::default_random_engine defaultEngine;
+			std::shuffle(mytestbak.begin(), mytestbak.end(), defaultEngine);
+			auto iter = mytestbak.begin();
+
+
+			for (auto col = 0; col < CellConfig_LocalCellCol; ++col)
+			{
+						for (auto row = 0; row < CellConfig_LocalCellRow; ++row)
+						{
+									if (_cellsLogic[col][row] != nullptr && _cellsLogic[col][row]->_isCanMove && _cellsLogic[col][row]->_isCanSelected)
+									{
+												(*iter)->setColumn(col);
+												(*iter)->setRow(row);
+												_cellsLogic[col][row] = *iter;
+												++iter;
+									}
+						}
+			}
+			//restoreStalemate();			
+			restoreAction();
+			if(_recordCouldDesCell!=nullptr)
+			{
+						hintTheUsableCell(_recordCouldDesCell);
+			}
+			_isCanRunning = true;
+}
 
 void CellLayer::onEnter()
 {

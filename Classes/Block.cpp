@@ -57,6 +57,7 @@ bool Block::init()
 									//_colorStr="red";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -66,6 +67,7 @@ bool Block::init()
 									//_colorStr = "pink";
 									_isCanMove= true ;
 									_isCanSelected= true ;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -75,6 +77,7 @@ bool Block::init()
 								//	_colorStr = "yellow";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -84,6 +87,7 @@ bool Block::init()
 									//_colorStr = "green";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -93,6 +97,7 @@ bool Block::init()
 									//_colorStr = "blue";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -102,6 +107,7 @@ bool Block::init()
 									//_colorStr = "blueand";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;
@@ -111,6 +117,7 @@ bool Block::init()
 									//_colorStr = "purple";
 									_isCanMove = true;
 									_isCanSelected = true;
+									_isCanBeAtteckted = true;
 									_iAttack = 1;
 									_score = 1;
 									_speed = CellConfig_CellSpeed;

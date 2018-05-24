@@ -29,9 +29,12 @@ USING_NS_CC;
 #define CellEliminateKind 7
 
 //speed
-#define CellConfig_CellSpeed 0.9
+#define CellConfig_CellSpeed 0.3
 
 #define blinkTag 1
+
+//monster config
+#define amendMonsterPositon(index) (index*winSize.width/7+winSize.width/14)
 
 const std::map<std::string, std::string> _StringTypeFile
 {
@@ -85,6 +88,11 @@ enum CellGlobalZorder :int
 enum PlateGlobalZorder :int
 {
 			PlateZorder = 200,
+};
+
+enum MonsGlobalZorder:int
+{
+			monsZorder = 300,
 };
 
 
@@ -144,3 +152,34 @@ const std::map<int,std::string> _EnumTypeFromStringCell
 			{ static_cast<int>(CellColor::stellPlate),"stellPlate" },
 };
 
+//monster
+
+enum MonsterZorder
+{
+			monsterZ1 = 1,
+};
+
+enum MonsterLife
+{
+			monsterL1 = 1,
+};
+
+enum MonsterSpeed
+{
+			monsterS1 = 5,
+};
+
+enum Score
+{
+			monsterScore1 = 1,
+};
+
+namespace TowerItem
+{
+			enum TowerOrignal
+			{
+						life = 3,
+						damage = 1,
+						speed = 1,
+			};
+};

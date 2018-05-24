@@ -1,6 +1,9 @@
 #ifndef __GamePlayScene_H__
 #define __GamePlayScene_H__
 #include "CellLayer.h"
+#include "LayerMonster.h"
+#include "LayerTower.h"
+#include "LayerBullet.h"
 
 
 
@@ -16,6 +19,7 @@ public:
 			static Scene *createScene(const CellConfiguration &config);
 			static GamePlayerScene *create(const CellConfiguration &config);
 			static bool loadAnimate();
+
 
 			//初始化游戏内容
 			bool init(const CellConfiguration &config);
@@ -46,18 +50,21 @@ public:
 			void onTouchEnded(Touch *touch, Event *unused_event);
 
 			void onTouchCancelled(Touch *touch, Event *unused_event);
-
+			
+			void update(float dt);
 
 
 			float _scalesizeX;
 			float _scalesizeY;
 
 
-
+			LayerMonster *_layerMonster{ nullptr };
+			LayerTower *_layerTower{ nullptr };
 			ClippingNode *_clipNode{ nullptr };
 			CellConfiguration *_config{nullptr};
 			CellLayer *_cellLayer{nullptr};
 			static int gamePath[7];
+			
 		
 };
 

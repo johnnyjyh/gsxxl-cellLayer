@@ -32,7 +32,7 @@ public:
 			bool _isMoving{ false };//是否在移动
 			bool _isCanMove{ true };//是否可以移动
 			bool _isCanBeAtteckted{false};
-			int _iAttack{ 0 };
+			int _iAttack{ 0 };//0无攻击,1普通攻击，2横排攻击，3纵排攻击，4周围一圈变成同色
 			int _score{ 0 };
 			
 			
