@@ -413,7 +413,7 @@ bool CellLayer::isStalemate()
 												{
 															isCan = isCanBak;
 												}
-												log("color %d:  isCan %d", colorRe, isCanBak);
+												//log("color %d:  isCan %d", colorRe, isCanBak);
 												if (isCan >= 3)
 												{
 															_recordCouldDesCell = sameColorCell[i];
@@ -524,7 +524,7 @@ void CellLayer::grantAttackTypeForCell()
 			});		*/
 			//DelayTime *deltime = DelayTime::create((float)0.32*(CellConfig_CellSpeed)*(_stepOuterTime > 1 ? _stepOuterTime - 1 : 1));
 		//	auto seq = Sequence::create( func, NULL);
-			cellsKeeper[num]->addChild(spr);
+			cellsKeeper[num]->addChild(spr, ItemGlobalZorder::itemZorder + cellsKeeper[num]->getCellColor());
 			cellsKeeper.clear();
 }
 
@@ -742,7 +742,7 @@ void CellLayer::attackFromDesCell(Cell * cell)
 									{
 												honRowMax = 1;
 									}
-									for (int i = cell->getRow()+verCol; i <= cell->getRow() + verColMax; ++i)
+									for (int i = cell->getRow()+ honRow; i <= cell->getRow() + honRowMax; ++i)
 									{
 												beattcell = getCellFromTable(cell->getColumn(),i);
 												if (beattcell != nullptr &&static_cast<int>(beattcell->getCellColor()) > CellEliminateKind &&beattcell->getLife() > 0 && beattcell->_isCanBeAtteckted)
@@ -750,7 +750,6 @@ void CellLayer::attackFromDesCell(Cell * cell)
 															beattcell->loseLife();
 												}
 									}
-
 									
 						}
 						else if(cell->_iAttack==2)
@@ -799,7 +798,27 @@ void CellLayer::attackFromDesCell(Cell * cell)
 						}
 						else if(cell->_iAttack==4)
 						{
-
+									Cell *beattcell = nullptr;
+									for(int i=cell->getColumn()-1;i<=cell->getColumn()+1;++i)
+									{
+												for(int j=cell->getRow()-1;j<=cell->getRow()+1;++j)
+												{
+															beattcell = getCellFromTable(i, j);
+															if(i==cell->getColumn() && j==cell->getRow())
+															{																		
+																		continue;
+															}
+															if(beattcell!=nullptr&&beattcell->getLife()>0 && (static_cast<int>(beattcell->getCellColor())>0&&static_cast<int>(beattcell->getCellColor())<=7)&&beattcell->_iAttack>0)
+															{
+																		beattcell->setNewColor(static_cast<int>(cell->getCellColor()));
+															}
+												}
+									}
+									
+						}
+						if (cell->getLife() > 0)
+						{
+									cell->loseLife();
 						}
 			}
 }

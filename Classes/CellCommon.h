@@ -23,7 +23,7 @@ USING_NS_CC;
 #define CellConfig_PlateVecticalRow 5
 
 #define CellColorCN 0
-#define PlateColorCN 100;
+#define PlateColorCN 100
 
 #define PlateVerticalLeftIdx 1.1
 #define CellEliminateKind 7
@@ -93,6 +93,11 @@ enum PlateGlobalZorder :int
 enum MonsGlobalZorder:int
 {
 			monsZorder = 300,
+};
+
+enum ItemGlobalZorder:int
+{
+			itemZorder = 400,
 };
 
 

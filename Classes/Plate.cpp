@@ -94,3 +94,7 @@ void Plate::destroy()
 			removeChild(_spr);
 			_spr = nullptr;
 }
+
+void Plate::setNewColor(const int color)
+{
+}

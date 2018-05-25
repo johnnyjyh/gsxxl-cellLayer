@@ -104,6 +104,11 @@ void PlayerDateControl::initRandEngine()
 			
 }
 
+void PlayerDateControl::loadCellConfigJSon()
+{
+
+}
+
 bool PlayerDateControl::loadAnimate()
 {
 			auto ret = false;

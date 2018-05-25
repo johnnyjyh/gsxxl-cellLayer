@@ -173,3 +173,18 @@ void Block::destroy()
 			removeChild(_spr);
 			_spr = nullptr;
 }
+
+void Block::setNewColor(const int color)
+{
+			this->destroy();
+			this->_color = static_cast<CellColor>(color);
+			_colorStr = _EnumTypeFromStringCell.at(color);		
+			_spr = ObjectPoolManager::getInstance()->getObject(_colorStr);
+			if (_spr == nullptr)
+			{
+						return;
+			}
+			setScale(getSingleTiledSize.x / _spr->getContentSize().width);
+			addChild(_spr);
+
+}

@@ -23,7 +23,7 @@ public:
 			};
 			virtual void onExit() { Node::onExit(); 
 			};
-
+			virtual void setNewColor(const int color) =0;
 
 			bool _isSelected{ false }; //是否被选择
 			bool _isCanSelected{ false };//是否能选择

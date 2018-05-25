@@ -9,6 +9,7 @@ public:
 			void destroy();
 			void onEnter() { Cell::onEnter(); };
 			void onExit() { Cell::onExit(); };
+			void setNewColor(const int color);
 
 
 };

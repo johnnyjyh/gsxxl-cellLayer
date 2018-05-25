@@ -11,6 +11,7 @@ public:
 			void onExit() { Cell::onExit(); };
 			bool init();
 			void destroy();
+			void setNewColor(const int color);
 			
 };
 
