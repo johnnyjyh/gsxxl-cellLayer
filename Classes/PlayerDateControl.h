@@ -14,7 +14,7 @@ public:
 			bool init();
 			Scene *turnToGamePlayScene();
 			void initRandEngine();
-			void loadCellConfigJSon();
+			bool loadCellConfigJSon(const std::string filename);
 			
 			CellConfiguration _config;//cell config
 			static PlayerDateControl *_instance;

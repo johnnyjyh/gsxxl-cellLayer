@@ -1,5 +1,8 @@
 #include "PlayerDateControl.h"
-
+#include "json/document.h"
+#include "json/stringbuffer.h"
+#include "json/writer.h"
+#include "json/rapidjson.h"
 
 
 
@@ -63,11 +66,9 @@ Scene * PlayerDateControl::turnToGamePlayScene()
 
 void PlayerDateControl::initRandEngine()
 {
-			std::default_random_engine generator(time(NULL));
-			std::uniform_int_distribution<int> dis(1,8);
-			auto dice = std::bind(dis, generator);
-
-			for (int col = 0; col < CellConfig_LocalCellCol; ++col)
+			
+			loadCellConfigJSon("/test.json");
+			/*for (int col = 0; col < CellConfig_LocalCellCol; ++col)
 			{
 						for (int row = 0; row < CellConfig_LocalCellRow; ++row)
 						{
@@ -99,14 +100,82 @@ void PlayerDateControl::initRandEngine()
 						{
 									_config._plateVectical[col][row] = dice3();
 						}
-			}
+			}*/
 
 			
 }
 
-void PlayerDateControl::loadCellConfigJSon()
+bool PlayerDateControl::loadCellConfigJSon(const std::string filename)
 {
+			auto ret = false;
+			do 
+			{
+						std::default_random_engine generator(time(NULL));
+						std::uniform_int_distribution<int> dis(1, 7);
+						auto dice = std::bind(dis, generator);
 
+						rapidjson::Document doc;
+
+						std::string load_str;
+						load_str = cocos2d::FileUtils::getInstance()->getStringFromFile(filename);
+						CC_BREAK_IF(load_str.empty());
+						doc.Parse<0>(load_str.c_str());
+
+						CC_BREAK_IF(doc.HasParseError());
+						//CC_BREAK_IF(!doc.IsArray());
+
+						for (unsigned int i = 0; i < doc.Size(); ++i)
+						{
+
+									std::string str;
+									if (i == 0)
+									{
+												str += "cell";
+									}
+									else if (i == 1)
+									{
+												str += "honrizontal";
+									}
+									else if (i == 2)
+									{
+												str += "vertical";
+									}
+									int j = 0;
+									for (auto &p : doc[i].GetObject())
+									{
+
+												str += std::to_string(j);
+												for (unsigned int k = 0; k < doc[i][str.c_str()].Size(); ++k)
+												{
+
+															if (i == 0)
+															{
+																		if (doc[i][str.c_str()][k].GetInt() != 0)
+																		{
+																					_config._localCell[j][CellConfig_LocalCellRow - 1 - k] = doc[i][str.c_str()][k].GetInt();
+																		}
+																		else
+																		{
+																					_config._localCell[j][CellConfig_LocalCellRow - 1 - k] = dice();
+																		}
+															}
+															else if (i == 1)
+															{
+																		_config._plateHorizontal[j][CellConfig_PlateHorizontalRow - 1 - k] = doc[i][str.c_str()][k].GetInt()+100;
+															}
+															else if (i == 2)
+															{
+																		_config._plateVectical[j][CellConfig_PlateVecticalRow - 1 - k] = doc[i][str.c_str()][k].GetInt()+100;
+															}
+												}
+												str.pop_back();
+												++j;
+									}
+									str.clear();
+						}
+						ret = true;
+			} while (0);
+			return ret;
 }
 
 bool PlayerDateControl::loadAnimate()
