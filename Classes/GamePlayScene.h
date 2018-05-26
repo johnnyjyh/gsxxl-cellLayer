@@ -1,9 +1,7 @@
 #ifndef __GamePlayScene_H__
 #define __GamePlayScene_H__
 #include "CellLayer.h"
-#include "LayerMonster.h"
-#include "LayerTower.h"
-#include "LayerBullet.h"
+
 
 
 
@@ -58,8 +56,7 @@ public:
 			float _scalesizeY;
 
 
-			LayerMonster *_layerMonster{ nullptr };
-			LayerTower *_layerTower{ nullptr };
+
 			ClippingNode *_clipNode{ nullptr };
 			CellConfiguration *_config{nullptr};
 			CellLayer *_cellLayer{nullptr};

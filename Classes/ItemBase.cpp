@@ -11,7 +11,4 @@ ItemBase::~ItemBase()
 {
 }
 
-ItemBase * ItemBase::createItem()
-{
-			return nullptr;
-}
+

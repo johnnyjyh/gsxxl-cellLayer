@@ -157,34 +157,3 @@ const std::map<int,std::string> _EnumTypeFromStringCell
 			{ static_cast<int>(CellColor::stellPlate),"stellPlate" },
 };
 
-//monster
-
-enum MonsterZorder
-{
-			monsterZ1 = 1,
-};
-
-enum MonsterLife
-{
-			monsterL1 = 1,
-};
-
-enum MonsterSpeed
-{
-			monsterS1 = 5,
-};
-
-enum Score
-{
-			monsterScore1 = 1,
-};
-
-namespace TowerItem
-{
-			enum TowerOrignal
-			{
-						life = 3,
-						damage = 1,
-						speed = 1,
-			};
-};

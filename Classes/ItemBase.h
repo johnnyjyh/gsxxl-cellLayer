@@ -7,7 +7,7 @@ class ItemBase :public Node
 public:
 			ItemBase();
 			~ItemBase();
-			virtual ItemBase *createItem() ;
+			virtual ItemBase *createItem()=0;
 };
 
 #endif // __ItemBase_H__

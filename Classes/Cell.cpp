@@ -1,5 +1,6 @@
 #include "Cell.h"
 
+
 Rect Cell::getBoundingBox() noexcept
 {
 			if(_spr==nullptr)
@@ -25,7 +26,7 @@ void Cell::initCellToNull() noexcept
 			_isMoving = false;
 			_isCanMove = true;
 			_isCanBeAtteckted = false;
-			_iAttack = 0;//0: 不攻击，1:攻击 横竖距离为1的单位 ，2: 九方格一圈 ，3: 横条，左右各为3的单位，4:纵条 上下为2的单位
+			_iAttack = 0; //0: 不攻击，1:攻击 横竖距离为1的单位 ，2: 横条，左右各为2的单位，3:纵条 上下为2的单位, 4: 九方格一圈 ，
 			//_colorStr.clear();
 }
 

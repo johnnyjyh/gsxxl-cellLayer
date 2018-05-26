@@ -126,52 +126,40 @@ bool PlayerDateControl::loadCellConfigJSon(const std::string filename)
 
 						for (unsigned int i = 0; i < doc.Size(); ++i)
 						{
-
-									std::string str;
-									if (i == 0)
-									{
-												str += "cell";
-									}
-									else if (i == 1)
-									{
-												str += "honrizontal";
-									}
-									else if (i == 2)
-									{
-												str += "vertical";
-									}
 									int j = 0;
 									for (auto &p : doc[i].GetObject())
 									{
-
-												str += std::to_string(j);
-												for (unsigned int k = 0; k < doc[i][str.c_str()].Size(); ++k)
+												for (unsigned int k = 0; k < p.value.Size(); ++k)
 												{
 
-															if (i == 0)
+															if (p.name.GetString()==(std::string("cell")+std::to_string(j)))
 															{
-																		if (doc[i][str.c_str()][k].GetInt() != 0)
+																		if (p.value[k].GetInt() != 0)
 																		{
-																					_config._localCell[j][CellConfig_LocalCellRow - 1 - k] = doc[i][str.c_str()][k].GetInt();
+																					_config._localCell[k][CellConfig_LocalCellRow-1-j] = p.value[k].GetInt();
 																		}
 																		else
 																		{
-																					_config._localCell[j][CellConfig_LocalCellRow - 1 - k] = dice();
+																					_config._localCell[k][CellConfig_LocalCellRow - 1 - j] = dice();
 																		}
 															}
-															else if (i == 1)
+															else if (p.name.GetString() == (std::string("honrizontal") + std::to_string(j)))
 															{
-																		_config._plateHorizontal[j][CellConfig_PlateHorizontalRow - 1 - k] = doc[i][str.c_str()][k].GetInt()+100;
+																		_config._plateHorizontal[k][CellConfig_PlateHorizontalRow-1-j] = p.value[k].GetInt()+100;
 															}
-															else if (i == 2)
+															else if (p.name.GetString() == (std::string("vertical") + std::to_string(j)))
 															{
-																		_config._plateVectical[j][CellConfig_PlateVecticalRow - 1 - k] = doc[i][str.c_str()][k].GetInt()+100;
+																		_config._plateVectical[k][CellConfig_PlateVecticalRow-1-j] = p.value[k].GetInt()+100;
+															}
+															else
+															{
+																		log("PlayerDateControl-loadCellConfigJSon-p.name.GetString():wrong");
 															}
 												}
-												str.pop_back();
+											
 												++j;
 									}
-									str.clear();
+									
 						}
 						ret = true;
 			} while (0);
