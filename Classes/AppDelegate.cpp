@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "PlayerDateControl.h"
+#include "PlayerDataControl.h"
 
 
 
@@ -97,7 +97,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	register_all_packages();
 
 	// create a scene. it's an autorelease object
-	auto scene = PlayerDateControl::getInstance()->turnToGamePlayScene();
+	auto scene = PlayerDataControl::getInstance()->turnToGamePlayScene();
 
 	// run
 	director->runWithScene(scene);
