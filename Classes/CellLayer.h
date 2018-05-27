@@ -12,11 +12,10 @@ public:
 			bool init(const CellConfiguration &config);
 
 			inline Vec2 coordinateToVec2(int col, int row) const { return Vec2(getSingleTiledSize.x*(col + 0.5), (getSingleTiledSize.y + (tileinterval - 95 * 0.5))*(row + 0.5)); };
-			inline int * vec2ToCoordinate(Vec2 vec) const {
-						int transformArr[2] = {0,0};
-						transformArr[0] = vec.x / getSingleTiledSize.x - 0.5;
-						transformArr[1] = vec.y / (getSingleTiledSize.y + (tileinterval - 95 * 0.5)) - 0.5;
-						return transformArr;
+			inline int * vec2ToCoordinate(Vec2 vec)  {
+						_transformArr[0] = vec.x / getSingleTiledSize.x - 0.5;
+						_transformArr[1] = vec.y / (getSingleTiledSize.y + (tileinterval - 95 * 0.5)) - 0.5;
+						return _transformArr;
 			};
 			inline int getPlayerScore()noexcept { return _playerAcquireScoreForCell; };
 
@@ -37,14 +36,14 @@ public:
 
 			Cell *getCellFromTable(int col, int row) noexcept;
 
-			//ºËÐÄÏû³ýÂß¼­
-			//¹¥»÷¼ì²â
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			void grantAttackTypeForCell();
 			void attackFromSource();
 			Cell *getVerticalPlate(int col, int row);
 			Cell *getHorizontalPlate(int col, int row);
 			void attackFromDesCell(Cell *cell);
-			//²¹¸ñ×Ó£¬¶¥ÅÅ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½ï¿½
 			void fillUpCellOnTop();
 
 			void coorVecClear();
@@ -71,7 +70,7 @@ public:
 			void destroyAndFillUpCells();
 			void destroyCells();
 			
-			//Á¬Ïß
+			//ï¿½ï¿½ï¿½ï¿½
 			void linkLineInGrid(int col1, int row1, int col2, int row2);
 			void unLinkLineInGrid(int col1, int row1, int col2, int row2);
 			//grey & light shader
@@ -87,7 +86,7 @@ public:
 
 
 
-			//ÒÔÏÂËÄ¸ö¼Ì³ÐÀ´µÄÐéº¯ÊýÓÃÓÚÀ´¼¯³É¿ØÖÆº¯Êý
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½éº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¿ï¿½ï¿½Æºï¿½ï¿½ï¿½
 			bool onTouchBegan(Touch *touch, Event *unused_event);
 
 			void onTouchMoved(Touch *touch, Event *unused_event);
@@ -97,7 +96,7 @@ public:
 			void onTouchCancelled(Touch *touch, Event *unused_event);
 
 		
-//Êý¾Ý
+//ï¿½ï¿½ï¿½ï¿½
 			bool _isCanRunning{ false };
 			bool _isTransformPos{ false };
 			bool _dropDownTransformPos{ false };
@@ -108,6 +107,7 @@ public:
 			int _cellPowerNum{ 0 };
 			int _playerAcquireScoreForCell{ 0 };
 			int _stepOuterTime{ 0 };
+			int _transformArr[2];
 			double _stepWatiTime{ 0.0 };
 			Cell * _cellsLogic[CellConfig_LocalCellCol][CellConfig_LocalCellRow];
 			Cell * _plateVertical[CellConfig_PlateVecticalCol][CellConfig_PlateVecticalRow];

@@ -185,7 +185,7 @@ void CellLayer::restoreStalemate()
 			if (!isStalemate())
 			{
 						++_stalemateCellCount;
-						if(_stalemateCellCount>=3)
+						if(_stalemateCellCount>=10)
 						{
 									return;
 						}

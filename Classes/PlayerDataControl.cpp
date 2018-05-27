@@ -3,7 +3,7 @@
 #include "json/stringbuffer.h"
 #include "json/writer.h"
 #include "json/rapidjson.h"
-
+using namespace  rapidjson; 
 
 
 
@@ -67,7 +67,7 @@ Scene * PlayerDataControl::turnToGamePlayScene()
 void PlayerDataControl::initRandEngine()
 {
 			
-			loadCellConfigJSon("/test.json");
+			loadCellConfigJSon("test.json");
 			/*for (int col = 0; col < CellConfig_LocalCellCol; ++col)
 			{
 						for (int row = 0; row < CellConfig_LocalCellRow; ++row)

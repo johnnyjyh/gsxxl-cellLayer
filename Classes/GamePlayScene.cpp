@@ -8,7 +8,7 @@ int GamePlayerScene::gamePath[7] = {};
 
 GamePlayerScene::GamePlayerScene()
 {
-			
+
 }
 
 
@@ -129,7 +129,7 @@ bool GamePlayerScene::initClippingNode()
 
 						_clipNode->setStencil(stencil);
 						//_clipNode->setGlobalZOrder(10000);
-						addChild(_clipNode, 2);
+						addChild(_clipNode);
 						ret = true;
 			} while (0);
 			return ret;
@@ -143,7 +143,7 @@ bool GamePlayerScene::initCellLayer()
 			do 
 			{
 						_cellLayer = CellLayer::create(*_config);
-						_clipNode->addChild(_cellLayer);
+						_clipNode->addChild(_cellLayer,10);
 						ret = true;
 			} while (0);
 
