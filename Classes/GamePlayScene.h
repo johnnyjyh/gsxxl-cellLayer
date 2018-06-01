@@ -1,6 +1,7 @@
 #ifndef __GamePlayScene_H__
 #define __GamePlayScene_H__
 #include "CellLayer.h"
+#include "DefenseLayer.h"
 
 
 
@@ -14,13 +15,13 @@ public:
 			GamePlayerScene();
 			~GamePlayerScene();
 
-			static Scene *createScene(const CellConfiguration &config);
-			static GamePlayerScene *create(const CellConfiguration &config);
+			static Scene *createScene(const CellConfiguration &config,const DefenseConfiguration &defenConfig);
+			static GamePlayerScene *create(const CellConfiguration &config, const DefenseConfiguration &defenConfig);
 			static bool loadAnimate();
 
 
 			//初始化游戏内容
-			bool init(const CellConfiguration &config);
+			bool init(const CellConfiguration &config, const DefenseConfiguration &defenConfig);
 			//创建炮台
 		
 			//创建怪物，并处理动作 
@@ -35,6 +36,8 @@ public:
 			bool initClippingNode();
 
 			bool initCellLayer();
+
+			bool initDefenseLayer();
 
 			void onEnter();  //用于控制加载完毕后的开始
 			void onExit();//用于用于控制结束场景后的控制
@@ -58,8 +61,11 @@ public:
 
 
 			ClippingNode *_clipNode{ nullptr };
-			CellConfiguration *_config{nullptr};
+			CellConfiguration *m_cell_config{nullptr};
+			DefenseConfiguration *m_defense_config{ nullptr };
 			CellLayer *_cellLayer{nullptr};
+			DefenseLayer *_defenseLayer{ nullptr };
+			
 			static int gamePath[7];
 			
 		

@@ -61,46 +61,47 @@ bool PlayerDataControl::init()
 Scene * PlayerDataControl::turnToGamePlayScene()
 {					
 
-			return GamePlayerScene::createScene(_config);
+			return GamePlayerScene::createScene(m_cell_config,m_defense_config);
 }
 
 void PlayerDataControl::initRandEngine()
 {
 			
 			loadCellConfigJSon("test.json");
-			/*for (int col = 0; col < CellConfig_LocalCellCol; ++col)
+			std::default_random_engine eng;
+			std::uniform_int_distribution<int>  dis(0, 1);
+			auto dice = std::bind(dis, eng);
+
+			/*	struct DefenseConfiguration
+				{
+							struct MonsterConfig
+							{
+										DefenseType m_type;
+										double delaytime;
+										int col;
+										int row;
+							};
+							int _towerConfig[TowerConfig_Column][TowerConfig_Row];
+							std::vector<MonsterConfig> _monsterConfig[MonsterConfig_Column];
+				};*/
+			for(int col=0;col<TowerConfig_Column;++col)
 			{
-						for (int row = 0; row < CellConfig_LocalCellRow; ++row)
+						for(int row=0;row<TowerConfig_Row;++row)
 						{
-									_config._localCell[col][row] = dice();
+									m_defense_config._towerConfig[col][row] = 1+TowerParaMeter::towerZoder;
 						}
 			}
 
-			std::uniform_int_distribution<int> dis2(100, 101);
-			auto dice2 = std::bind(dis2, generator);
-
-			for (int col = 0; col < CellConfig_PlateHorizontalCol; ++col)
+			for(int col=0;col<MonsterConfig_Column;++col)
 			{
-						for (int row = 0; row < CellConfig_PlateHorizontalRow; ++row)
-						{
-									if(row== CellConfig_PlateHorizontalRow-1)
-									{
-												_config._plateHorizontal[col][row] = 100;
-												continue;
-									}
-									_config._plateHorizontal[col][row] = dice2();
-						}
+						DefenseConfiguration::MonsterConfig newMonCon;
+						newMonCon.col = col;
+						newMonCon.delaytime = 0.0;
+						newMonCon.m_type = static_cast<DefenseType>(1+MonsterParaMeter::monsterZoder);
+						newMonCon.row = 10;
+						m_defense_config._monsterConfig[col].push_back(newMonCon);
 			}
 
-			std::uniform_int_distribution<int> dis3(100, 101);
-			auto dice3 = std::bind(dis3, generator);
-			for (auto col = 0; col < CellConfig_PlateVecticalCol; ++col)
-			{
-						for (auto row = 0; row < CellConfig_PlateVecticalRow; ++row)
-						{
-									_config._plateVectical[col][row] = dice3();
-						}
-			}*/
 
 			
 }
@@ -136,20 +137,20 @@ bool PlayerDataControl::loadCellConfigJSon(const std::string filename)
 															{
 																		if (p.value[k].GetInt() != 0)
 																		{
-																					_config._localCell[k][CellConfig_LocalCellRow-1-j] = p.value[k].GetInt();
+																					m_cell_config._localCell[k][CellConfig_LocalCellRow-1-j] = p.value[k].GetInt();
 																		}
 																		else
 																		{
-																					_config._localCell[k][CellConfig_LocalCellRow - 1 - j] = dice();
+																					m_cell_config._localCell[k][CellConfig_LocalCellRow - 1 - j] = dice();
 																		}
 															}
 															else if (p.name.GetString() == (std::string("honrizontal") + std::to_string(j)))
 															{
-																		_config._plateHorizontal[k][CellConfig_PlateHorizontalRow-1-j] = p.value[k].GetInt()+100;
+																		m_cell_config._plateHorizontal[k][CellConfig_PlateHorizontalRow-1-j] = p.value[k].GetInt()+100;
 															}
 															else if (p.name.GetString() == (std::string("vertical") + std::to_string(j)))
 															{
-																		_config._plateVectical[k][CellConfig_PlateVecticalRow-1-j] = p.value[k].GetInt()+100;
+																		m_cell_config._plateVectical[k][CellConfig_PlateVecticalRow-1-j] = p.value[k].GetInt()+100;
 															}
 															else
 															{

@@ -1,5 +1,5 @@
 #include "GamePlayScene.h"
-
+#include "CommonConfig.h"
 
 
 
@@ -16,18 +16,18 @@ GamePlayerScene::~GamePlayerScene()
 {
 }
 
-Scene * GamePlayerScene::createScene(const CellConfiguration &config)
+Scene * GamePlayerScene::createScene(const CellConfiguration &config, const DefenseConfiguration &defenConfig)
 {
 			auto scene = Scene::create();
-			auto layer = GamePlayerScene::create(config);
+			auto layer = GamePlayerScene::create(config,defenConfig);
 			scene->addChild(layer);
 			return scene;
 }
 
-GamePlayerScene * GamePlayerScene::create(const CellConfiguration &config)
+GamePlayerScene * GamePlayerScene::create(const CellConfiguration &config, const DefenseConfiguration &defenConfig)
 {
 			GamePlayerScene *pRet = new GamePlayerScene();
-			if (pRet && pRet->init(config))
+			if (pRet && pRet->init(config,defenConfig))
 			{
 						pRet->autorelease();
 			}
@@ -39,7 +39,7 @@ GamePlayerScene * GamePlayerScene::create(const CellConfiguration &config)
 			return pRet;
 }
 
-bool GamePlayerScene::init(const CellConfiguration &config)
+bool GamePlayerScene::init(const CellConfiguration &config, const DefenseConfiguration &defenConfig)
 {
 			auto ret = false;
 			do 
@@ -47,7 +47,8 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 
 						Layer::init();					
 						
-						_config = const_cast<CellConfiguration *>(&config);
+						m_cell_config = const_cast<CellConfiguration *>(&config);
+						m_defense_config = const_cast<DefenseConfiguration *>(&defenConfig);
 
 						loadAnimate();
 
@@ -56,6 +57,8 @@ bool GamePlayerScene::init(const CellConfiguration &config)
 						initClippingNode();
 
 						CC_BREAK_IF(!initCellLayer());
+
+						CC_BREAK_IF(!initDefenseLayer());
 						//createCellsForPlant();
 
 
@@ -142,11 +145,25 @@ bool GamePlayerScene::initCellLayer()
 			auto ret = false;
 			do 
 			{
-						_cellLayer = CellLayer::create(*_config);
+						_cellLayer = CellLayer::create(*m_cell_config);
 						_clipNode->addChild(_cellLayer,10);
 						ret = true;
 			} while (0);
 
+			return ret;
+}
+
+bool GamePlayerScene::initDefenseLayer()
+{
+			auto ret = false;
+			do 
+			{
+						_defenseLayer = DefenseLayer::create(*m_defense_config);
+						//_defenseLayer->setAnchorPoint(Point::ZERO);
+						
+						addChild(_defenseLayer,10);
+						ret = true;
+			} while (0);
 			return ret;
 }
 

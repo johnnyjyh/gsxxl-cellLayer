@@ -1,5 +1,7 @@
 #include "ObjectPoolManager.h"
 #include "CellCommon.h"
+#include "CommonConfig.h"
+#include "DefenseCommon.h"
 
 
 ObjectPoolManager * ObjectPoolManager::_instance = nullptr;
@@ -80,8 +82,16 @@ Sprite *ObjectPoolManager::getObject(const std::string &type)
 									for (int i = 0; i < _size; ++i)
 									{
 												auto spr = Sprite::createWithSpriteFrameName(config.second);
-												spr->retain();
-												_ObjectPool[config.first].pushBack(spr);
+												if(spr!=nullptr)
+												{
+															spr->retain();
+															_ObjectPool[config.first].pushBack(spr);
+												}
+												else
+												{
+															log("0010:ObjectPoolManager-getObject:_spr==nullptr!");
+												}
+												
 									}
 						}
 			}

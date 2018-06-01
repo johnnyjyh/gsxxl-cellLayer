@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Block.h"
 #include "Plate.h"
 
@@ -36,14 +36,13 @@ public:
 
 			Cell *getCellFromTable(int col, int row) noexcept;
 
-			//���������߼�
-			//�������
+	
 			void grantAttackTypeForCell();
 			void attackFromSource();
 			Cell *getVerticalPlate(int col, int row);
 			Cell *getHorizontalPlate(int col, int row);
 			void attackFromDesCell(Cell *cell);
-			//�����ӣ�����
+			
 			void fillUpCellOnTop();
 
 			void coorVecClear();
@@ -70,15 +69,15 @@ public:
 			void destroyAndFillUpCells();
 			void destroyCells();
 			
-			//����
+		
 			void linkLineInGrid(int col1, int row1, int col2, int row2);
 			void unLinkLineInGrid(int col1, int row1, int col2, int row2);
-			//grey & light shader
+			
 			void addGreyAndLightShader();
 			void recoverLightCells(CellColor col);
 			void showLightCells(CellColor col);
 
-			//item for cells
+		
 			void shffuleCellsforMenu();
 
 			void onEnter();
@@ -86,7 +85,7 @@ public:
 
 
 
-			//�����ĸ��̳������麯�����������ɿ��ƺ���
+		
 			bool onTouchBegan(Touch *touch, Event *unused_event);
 
 			void onTouchMoved(Touch *touch, Event *unused_event);
@@ -96,7 +95,7 @@ public:
 			void onTouchCancelled(Touch *touch, Event *unused_event);
 
 		
-//����
+
 			bool _isCanRunning{ false };
 			bool _isTransformPos{ false };
 			bool _dropDownTransformPos{ false };

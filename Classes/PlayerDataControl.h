@@ -16,7 +16,8 @@ public:
 			void initRandEngine();
 			bool loadCellConfigJSon(const std::string filename);
 			
-			CellConfiguration _config;//cell config
+			CellConfiguration m_cell_config;//cell config
+			DefenseConfiguration m_defense_config;//defense config
 			static PlayerDataControl *_instance;
 
 			bool loadAnimate();
